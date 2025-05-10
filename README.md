@@ -106,7 +106,7 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
     </tr>
     <tr>
         <td width="200">
-            Mic
+            Noise
         </td>
         <td width="320">
             <img src="https://github.com/user-attachments/assets/fd4d4dcf-a0ee-4e61-b07a-c7cc1bb8ecee" loading="lazy" width="300px">
