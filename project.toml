@@ -1,0 +1,19 @@
+[tool.ruff]
+exclude = [
+    ".venv",
+    ".ruff_cache"
+]
+line-length = 119
+indent-width = 4
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "F", # Flake8
+    "B", # Black
+    "I", # isort
+    "E", # error
+    "W"  # warning
+]
+ignore = []
+fixable = ["ALL"]

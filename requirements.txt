@@ -1,0 +1,8 @@
+dearpygui
+onnx
+onnxruntime
+opencv-python
+librosa
+sounddevice
+
+google-cloud-speech

@@ -1,0 +1,18 @@
+{
+    "default_sampling_rate": 16000,
+    "chunk_size": 1024,
+    "editor_width": 1440,
+    "editor_height": 810,
+    "input_window_width": 240,
+    "input_window_height": 135,
+    "waveform_width": 350,
+    "waveform_height": 130,
+    "spectrogram_window_size": 512,
+    "spectrogram_hop_size": 128,
+    "spectrogram_window": "hamming",
+    "spectrogram_scaling": [-80, 0],
+    "spectrogram_smooth_order": 5,
+    "output_directory": "./_output",
+    "use_pref_counter": true,
+    "google_application_credentials_json": ""
+}
