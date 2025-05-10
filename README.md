@@ -431,14 +431,24 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
 <table>
     <tr>
         <td width="200">
-            XXXXXXXX
+            Switch
         </td>
         <td width="320">
-            <img src="" loading="lazy" width="300px">
+            <img src="https://github.com/user-attachments/assets/fd2a8bb7-ed7f-40c0-a632-eb6b5d77f22d" loading="lazy" width="300px">
         </td>
         <td width="760">
-            XXXXXXXX<br>
-            XXXXXXXX
+            チャンクデータ2つを受け取り、指定したチャンクデータを出力するノード
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            FPS
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/a9e28170-98eb-4b72-b0ce-da23e7d05b21" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            処理時間を計測するノード
         </td>
     </tr>
 </table>
