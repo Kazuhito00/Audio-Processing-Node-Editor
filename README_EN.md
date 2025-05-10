@@ -1,3 +1,4 @@
+[[Japanese](https://github.com/Kazuhito00/Audio-Processing-Node-Editor)/English] 
 
 # Audio-Processing-Node-Editor
 This is an audio processing app based on the node editor. <br>
