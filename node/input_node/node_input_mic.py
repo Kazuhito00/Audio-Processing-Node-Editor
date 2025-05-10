@@ -228,7 +228,7 @@ class Node(DpgNodeABC):
             self._node_data[str(node_id)]["buffer"] = np.zeros(0, dtype=np.float32)
 
             # プロットエリア初期化
-            self._node_data[str(node_id)]["current_chunk_index"] = -1
+            self._node_data[str(node_id)]["chunk_index"] = -1
 
             buffer_len: int = self._default_sampling_rate * 5
             self._node_data[str(node_id)]["display_y_buffer"] = np.zeros(
