@@ -66,7 +66,7 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
             Audio Control
         </td>
         <td width="320">
-            <img src="https://github.com/user-attachments/assets/5bee6be8-cc36-4de1-be9e-69a1b429b290" loading="lazy" width="300px">
+            <img src="https://github.com/user-attachments/assets/610e47b5-3b18-4c77-a864-9efd04ef52ce" loading="lazy" width="300px">
         </td>
         <td width="760">
             Audio Fileノード、Micノード、Noiseノード、Write Wav Fileノード を制御するノード<br>
@@ -353,14 +353,36 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
 <table>
     <tr>
         <td width="200">
-            XXXXXXXX
+            Start Delay
         </td>
         <td width="320">
-            <img src="" loading="lazy" width="300px">
+            <img src="https://github.com/user-attachments/assets/0a7a661e-0f9b-441c-af6c-70068162e6dc" loading="lazy" width="300px">
         </td>
         <td width="760">
-            XXXXXXXX<br>
-            XXXXXXXX
+            チャンクデータを受け取り、指定時間遅延したチャンクデータを出力するノード<br>
+            ※時間指定は、Audio Controlノードで「停止」中に行うこと
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Simple Mixer
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/c8ed526a-404b-4ccb-aa1a-5a307a7dd00b" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータ2つを受け取り、ミキシングしたチャンクデータを出力するノード
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Voice Activity Detection(Silero VAD)
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/7df59ac0-2ee6-454b-93b5-31cb6127b262" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、音声区間検出を行うノード
         </td>
     </tr>
 </table>
