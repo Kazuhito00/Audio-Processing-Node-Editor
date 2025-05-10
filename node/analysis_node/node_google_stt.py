@@ -63,7 +63,7 @@ class Node(DpgNodeABC):
             self._google_application_credentials_json
         ):
             print(
-                f"    XXXX[Warning] STT Node:A valid credentials JSON file must be specified to use this node."
+                f"    [Warning] STT Node:A valid credentials JSON file must be specified to use this node."
             )
             return None
 
