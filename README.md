@@ -179,14 +179,81 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
 <table>
     <tr>
         <td width="200">
-            XXXXXXXX
+            Gain Control(Scale Amplitude)
         </td>
         <td width="320">
-            <img src="" loading="lazy" width="300px">
+            <img src="https://github.com/user-attachments/assets/c46f5ff0-081a-4197-85e3-6b247d443573" loading="lazy" width="300px">
         </td>
         <td width="760">
-            XXXXXXXX<br>
-            XXXXXXXX
+            チャンクデータを受け取り、定数倍したチャンクデータを出力するノード
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Dynamic Range Compression
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/628484e8-3cb5-47dd-8e54-15428c8e23ee" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、ダイナミックレンジ圧縮を行ったチャンクデータを出力するノード<br>
+            Threshold：閾値<br>
+            Ratio：閾値を越えた値をどの程度の割合で圧縮するか<br>
+            Attack(ms)：閾値を超えたとき、ゲインを下げる速さ（ミリ秒）<br>
+            Release(ms)：閾値以下に戻ったとき、ゲインを戻す速さ（ミリ秒）<br>
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Hard Limit
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/4a3c542c-fc7c-4a88-a96d-833ad02917ce" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、振幅制限を行ったチャンクデータを出力するノード
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Soft Limit(tanh)
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/ba18788f-4acc-4e9d-8d13-ea973a3e3825" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、tanhを用いた緩やかな振幅制限を行ったチャンクデータを出力するノード
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Expander
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/3252d730-84de-4124-b142-9671c5ee730c" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、ダイナミックレンジ拡張を行ったチャンクデータを出力するノード<br>
+            Threshold：閾値<br>
+            Ratio：閾値を下回った値をどの程度の割合で減衰するか<br>
+            Attack(ms)：閾値を超えたとき、ゲインを下げる速さ（ミリ秒）<br>
+            Release(ms)：閾値以下に戻ったとき、ゲインを戻す速さ（ミリ秒）<br>
+            Hold(ms)：閾値を下回ってもすぐに減衰しない猶予期間（ミリ秒）<br>
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Noise Gate
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/697e99fe-862e-470c-b212-0b1194d0bea3" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、ノイズゲート処理を行ったチャンクデータを出力するノード<br>
+            Threshold：閾値<br>
+            Attack(ms)：閾値を超えたとき、ゲインを下げる速さ（ミリ秒）<br>
+            Release(ms)：閾値以下に戻ったとき、ゲインを戻す速さ（ミリ秒）<br>
+            Hold(ms)：閾値を下回ってもすぐに減衰しない猶予期間（ミリ秒）<br>
         </td>
     </tr>
 </table>
