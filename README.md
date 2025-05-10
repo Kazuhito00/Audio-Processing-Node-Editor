@@ -253,7 +253,7 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
             Threshold：閾値<br>
             Attack(ms)：閾値を超えたとき、ゲインを下げる速さ（ミリ秒）<br>
             Release(ms)：閾値以下に戻ったとき、ゲインを戻す速さ（ミリ秒）<br>
-            Hold(ms)：閾値を下回ってもすぐに減衰しない猶予期間（ミリ秒）<br>
+            Hold(ms)：閾値を下回ってもすぐに減衰しない猶予期間（ミリ秒）
         </td>
     </tr>
 </table>
@@ -265,14 +265,83 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
 <table>
     <tr>
         <td width="200">
-            XXXXXXXX
+            Bandpass Filter(Butterworth IIR)
         </td>
         <td width="320">
-            <img src="" loading="lazy" width="300px">
+            <img src="https://github.com/user-attachments/assets/fbd62390-5496-4e71-9e86-cca3fc33634d" loading="lazy" width="300px">
         </td>
         <td width="760">
-            XXXXXXXX<br>
-            XXXXXXXX
+            チャンクデータを受け取り、バンドパスフィルター(バターワース IIR型)を通したチャンクデータを出力するノード<br>
+            High Cut Freq(Hz)：上側遮断周波数(Hz)<br>
+            Low Cut Freq(Hz)：下限遮断周波数(Hz)<br>
+            Filter Order：フィルター次数
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Bandstop Filter(Butterworth IIR)
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/a893e278-0b07-4e56-9877-d0413e4d5ad7" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、バンドストップフィルター(バターワース IIR型)を通したチャンクデータを出力するノード<br>
+            High Cut Freq(Hz)：上側遮断周波数(Hz)<br>
+            Low Cut Freq(Hz)：下限遮断周波数(Hz)<br>
+            Filter Order：フィルター次数
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Highpass Filter(Butterworth IIR)
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/c03f026d-baa2-4b47-b700-7a15eb565ee7" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、ハイパスフィルター(バターワース IIR型)を通したチャンクデータを出力するノード<br>
+            Low Cut Freq(Hz)：下限遮断周波数(Hz)<br>
+            Filter Order：フィルター次数
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Lowpass Filter(Butterworth IIR)
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/eae66eb8-2c1c-4050-8855-e094b31ba964" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、ローフィルター(バターワース IIR型)を通したチャンクデータを出力するノード<br>
+            High Cut Freq(Hz)：上側遮断周波数(Hz)<br>
+            Filter Order：フィルター次数
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Simple EQ(Butterworth IIR)
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/425bce4a-af9d-45d8-a3bb-f9953181e5c0" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、対象領域のゲイン増幅・減衰を行ったチャンクデータを出力するノード<br>
+            High Cut Freq(Hz)：上側遮断周波数(Hz)<br>
+            Low Cut Freq(Hz)：下限遮断周波数(Hz)<br>
+            Gain(dB)：ゲイン(dB)
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Simple Spectrogram
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/2d9b8e18-1348-40ee-93d6-26f109fdeb82" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、簡易的なスペクトログラムを表示するノード<br>
+            シフトサイズや窓関数(ハミング窓かハニング窓)、平滑化数などは「node_editor/setting/setting.json」に設定<br>
+            表示データの下端が0Hz、上端がナイキスト周波数
         </td>
     </tr>
 </table>
