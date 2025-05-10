@@ -147,14 +147,27 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
 <table>
     <tr>
         <td width="200">
-            XXXXXXXX
+            Speaker
         </td>
         <td width="320">
-            <img src="" loading="lazy" width="300px">
+            <img src="https://github.com/user-attachments/assets/bd29d949-41a2-4d5a-b1d7-61667ffad61c" loading="lazy" width="300px">
         </td>
         <td width="760">
-            XXXXXXXX<br>
-            XXXXXXXX
+            チャンクデータを受け取り、スピーカー出力を行うノード<br>
+            ドロップダウンリストからスピーカーを選択
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Write Wav File
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/0acf9e7d-3932-4ff6-a85e-3dcbdb38f406" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、Wavファイル保存を行うノード<br>
+            出力先は「node_editor/setting/setting.json」の「output_directory」に設定<br>
+            ※デフォルトは「./_output」
         </td>
     </tr>
 </table>
