@@ -382,7 +382,7 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
             <img src="https://github.com/user-attachments/assets/7df59ac0-2ee6-454b-93b5-31cb6127b262" loading="lazy" width="300px">
         </td>
         <td width="760">
-            チャンクデータを受け取り、音声区間検出を行うノード
+            チャンクデータを受け取り、Silero VADを用いた音声区間検出を行うノード
         </td>
     </tr>
 </table>
@@ -394,14 +394,13 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
 <table>
     <tr>
         <td width="200">
-            XXXXXXXX
+            Speech Enhancement(GTCRN)
         </td>
         <td width="320">
-            <img src="" loading="lazy" width="300px">
+            <img src="https://github.com/user-attachments/assets/cecd2dc2-a673-4547-8549-4dabead84ee7" loading="lazy" width="300px">
         </td>
         <td width="760">
-            XXXXXXXX<br>
-            XXXXXXXX
+            チャンクデータを受け取り、GTCRNを用いた音声強調を行ったチャンクデータを出力するノード
         </td>
     </tr>
 </table>
