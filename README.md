@@ -1,1 +1,151 @@
+
 # Audio-Processing-Node-Editor
+ノードエディターベースのオーディオ処理アプリです。<br>
+処理の検証や比較検討での用途を想定しています。<br>
+
+<img src="https://github.com/user-attachments/assets/d59d10a4-8aef-4af4-af34-ef9ae6f682c7" loading="lazy" width="100%">
+
+# Note
+ノードは作成者(高橋)が必要になった順に追加しているため、<br>
+オーディオ処理における基本的な処理を担うノードが不足していることがあります。<br>
+
+# Requirements
+```
+dearpygui            2.0.0     or later
+onnx                 1.17.0    or later
+onnxruntime          1.17.0    or later
+opencv-python        4.11.0.86 or later
+librosa              0.11.0    or later
+sounddevice          0.5.1     or later
+soundfile            0.13.1    or later
+google-cloud-speech  2.32.0    or later ※Speech Recognition(Google Speech-to-Text)ノードを実行する場合
+```
+
+# Installation
+1. リポジトリをクローン<br>`git clone https://github.com/Kazuhito00/Audio-Processing-Node-Editor`
+1. パッケージをインストール <br>`pip install -r requirements.txt`  
+1. 「main.py」を実行<br>`python main.py`
+
+# Usage
+アプリの起動方法は以下です。
+```bash
+python main.py
+```
+* --setting<br>
+ノードサイズやサンプリング周波数、Googleクレデンシャルパスの設定が記載された設定ファイルパスの指定<br>
+デフォルト：node_editor/setting/setting.json
+
+### Create Node
+メニューから作成したいノードを選びクリック<br>
+<img src="https://github.com/user-attachments/assets/4d9b810e-7e00-4084-b164-04412b093a60" loading="lazy" width="50%">
+
+### Connect Node
+出力端子をドラッグして入力端子に接続<br>
+端子に設定された型同士のみ接続可能<br>
+<img src="https://github.com/user-attachments/assets/47f26d31-1e78-4185-810b-7073ec53dd9d" loading="lazy" width="50%">
+
+### Delete Node
+削除したいノードを選択した状態で「Del」キー<br>
+<img src="https://github.com/user-attachments/assets/d6f0e993-46f1-42a2-81a8-378ae0efc507" loading="lazy" width="50%">
+
+### Export
+メニューから「Export」を押し、ノード設定(jsonファイル)を保存<br>
+<img src="https://github.com/user-attachments/assets/f3981cae-f58f-441e-b438-dee3ec83ed6d" loading="lazy" width="50%">
+
+### Import
+Exportで出力したノード設定(jsonファイル)を読み込む<br>
+<img src="https://github.com/user-attachments/assets/3803a4a2-f60b-48a8-8ea0-3851bdfa1de8" loading="lazy" width="50%">
+
+# Node
+<details>
+<summary>System Node</summary>
+
+<table>
+    <tr>
+        <td width="200">
+            Audio Control
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/5bee6be8-cc36-4de1-be9e-69a1b429b290" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            Audio Fileノード、Micノード、Noiseノード、Write Wav Fileノード を制御するノード<br>
+            Audio Controlノードはシステムで1つのみ生成可能
+        </td>
+    </tr>
+</table>
+</details>
+
+<details>
+<summary>Input Node</summary>
+
+<table>
+    <tr>
+        <td width="200">
+            Audio File
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/9fd91d47-e73a-461a-b3fc-eb4adac86e53" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            オーディオファイル(wav, mp3, ogg, m4a)を読み込み、チャンクデータを出力するノード<br>
+            「Select Audio File」ボタンでファイルダイアログをオープン
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Mic
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/1e576e21-42cb-4788-a8aa-70fdf82452cd" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            マイク入力を読み込み、チャンクデータを出力するノード<br>
+            ドロップダウンリストからマイクを選択
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Mic
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/fd4d4dcf-a0ee-4e61-b07a-c7cc1bb8ecee" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            ノイズを生成し、チャンクデータを出力するノード<br>
+            ドロップダウンリストからノイズ種類（ホワイトノイズ、簡易ピンクノイズ、ヒスノイズ、ハムノイズ、パルスノイズ）を選択
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Int Value
+        </td>
+        <td width="320">
+            <img src="https://user-images.githubusercontent.com/37477845/172031284-95255053-6eaf-4298-a392-062129e698f6.png" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            整数値を出力するノード<br>
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Float Value
+        </td>
+        <td width="320">
+            <img src="https://user-images.githubusercontent.com/37477845/172031323-98ae0273-7083-48d0-9ef2-f02af7fde482.png" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            フロート値を出力するノード<br>
+        </td>
+    </tr>
+</table>
+</details>
+
+# Author
+高橋かずひと(https://twitter.com/KzhtTkhs)
+ 
+# License 
+Audio-Processing-Node-Editor is under [Apache-2.0 license](LICENSE).<br><br>
+Audio-Processing-Node-Editorのソースコード自体は[Apache-2.0 license](LICENSE)ですが、<br>
+各アルゴリズムのソースコードは、それぞれのライセンスに従います。<br>
+詳細は各ディレクトリ同梱のLICENSEファイルをご確認ください。
