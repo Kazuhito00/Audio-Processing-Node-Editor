@@ -133,7 +133,7 @@ class Node(DpgNodeABC):
         return None
 
     def close(self, node_id: str) -> None:
-        pass
+        self._add_node_flag = False
 
     def get_setting_dict(self, node_id: str) -> Dict[str, Any]:
         tag_name_list: List[Any] = get_tag_name_list(
