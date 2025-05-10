@@ -1,3 +1,4 @@
+[Japanese/[English](README_EN.md)]
 
 # Audio-Processing-Node-Editor
 ノードエディターベースのオーディオ処理アプリです。<br>
