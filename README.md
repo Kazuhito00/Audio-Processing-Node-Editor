@@ -412,14 +412,14 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
 <table>
     <tr>
         <td width="200">
-            XXXXXXXX
+            Speech Recognition(Google Speech-to-Text)
         </td>
         <td width="320">
-            <img src="" loading="lazy" width="300px">
+            <img src="https://github.com/user-attachments/assets/6140903a-a048-47fe-8198-357f2807a4b7" loading="lazy" width="300px">
         </td>
         <td width="760">
-            XXXXXXXX<br>
-            XXXXXXXX
+            チャンクデータを受け取り、Google Speech-to-Textを用いて文字書き起こしを行うノード<br>
+            このノードを使用する際は、「node_editor/setting/setting.json」の「google_application_credentials_json」にサービスアカウントキーを設定してください<br>
         </td>
     </tr>
 </table>
