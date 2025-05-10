@@ -89,7 +89,7 @@ class Node(DpgNodeABC):
             ):
                 with dpg.group(horizontal=True):
                     dpg.add_button(
-                        label="再生",
+                        label="再生\nPlay",
                         tag=f"{node_id}:play_button",
                         width=int(small_window_w / 3),
                         height=int(small_window_w / 3),
@@ -97,7 +97,7 @@ class Node(DpgNodeABC):
                         user_data=node_id,
                     )
                     dpg.add_button(
-                        label="一時停止",
+                        label="一時停止\n Pause",
                         tag=f"{node_id}:pause_button",
                         width=int(small_window_w / 3),
                         height=int(small_window_w / 3),
@@ -105,7 +105,7 @@ class Node(DpgNodeABC):
                         user_data=node_id,
                     )
                     dpg.add_button(
-                        label="停止",
+                        label="停止\nStop",
                         tag=f"{node_id}:stop_button",
                         width=int(small_window_w / 3),
                         height=int(small_window_w / 3),
