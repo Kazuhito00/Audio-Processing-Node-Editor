@@ -175,3 +175,9 @@ cython_debug/
 
 # bat
 *.bat
+
+# google-credentials.json
+google-credentials.json
+
+# node
+node_input_get_user_media_mic.py
