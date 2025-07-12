@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import datetime
 import os
 import queue
 import textwrap
@@ -9,6 +10,7 @@ from typing import Any, Dict, List, Optional
 
 import dearpygui.dearpygui as dpg  # type: ignore
 import numpy as np
+
 from node.node_abc import DpgNodeABC  # type: ignore
 from node_editor.util import dpg_set_value, get_tag_name_list  # type: ignore
 
@@ -23,7 +25,7 @@ class Node(DpgNodeABC):
         self._node_data = {}
 
         self._audio_queue: Dict[int, queue.Queue] = {}
-        self._stt_running_flag = True
+        self._stt_running_flag: Dict[int, bool] = {}
 
     def add_node(
         self,
@@ -63,7 +65,7 @@ class Node(DpgNodeABC):
             self._google_application_credentials_json
         ):
             print(
-                f"    [Warning] STT Node:A valid credentials JSON file must be specified to use this node."
+                "    [Warning] STT Node:A valid credentials JSON file must be specified to use this node."
             )
             return None
 
@@ -88,6 +90,8 @@ class Node(DpgNodeABC):
             config=stt_config,
             interim_results=True,  # 中間結果は不要ならFalse
         )
+
+        self._stt_running_flag[node_id] = True
 
         # 音声認識準備
         def generator(node_id: int):
@@ -122,25 +126,42 @@ class Node(DpgNodeABC):
             responses = speech_client.streaming_recognize(
                 self._streaming_config, generator(node_id)
             )
-            for response in responses:
-                for result in response.results:
-                    transcript = result.alternatives[0].transcript
-                    wrapped_text = "\n".join(textwrap.wrap(transcript, 20))
-                    dpg_set_value(output_tag_list[0][1], wrapped_text)
 
-        try:
-            speech_client = speech.SpeechClient()
-        except Exception as e:
-            print(
-                f"    [Warning] STT Node: Failed to initialize Google Speech client.\n        Reason: {str(e)}"
-            )
-            return None
+            start_time = datetime.datetime.now()
+
+            for response in responses:
+                try:
+                    # 最大ストリーム時間（Googleの仕様: 305秒）を超えたら終了
+                    if (datetime.datetime.now() - start_time).total_seconds() > 300:
+                        print("🔁 [STT] Reconnecting after 300 seconds")
+                        break
+
+                    for result in response.results:
+                        transcript = result.alternatives[0].transcript
+                        wrapped_text = "\n".join(textwrap.wrap(transcript, 20))
+                        dpg_set_value(output_tag_list[0][1], wrapped_text)
+                except Exception as e:
+                    print(f"[STT Error] during response loop: {e}")
+                    break
+
+        def loop_run_stt(node_id: int):
+            from google.cloud import speech
+
+            while self._stt_running_flag.get(node_id, False):
+                try:
+                    # 新しいクライアントを生成（セッションごとに）
+                    speech_client = speech.SpeechClient()
+                    self._node_data[str(node_id)]["speech_client"] = speech_client
+                    run_stt(node_id)
+                except Exception as e:
+                    print(f"[Error] STT loop error: {e}")
+                time.sleep(1)  # クールダウンして再接続
 
         self._node_data[str(node_id)] = {
             "current_chunk_index": -1,
-            "speech_client": speech_client,
+            "speech_client": None,
             "stt_thread": threading.Thread(
-                target=run_stt, args=(node_id,), daemon=True
+                target=loop_run_stt, args=(node_id,), daemon=True
             ),
         }
         self._node_data[str(node_id)]["stt_thread"].start()
@@ -258,7 +279,9 @@ class Node(DpgNodeABC):
         return None
 
     def close(self, node_id):
-        pass
+        self._stt_running_flag[node_id] = False
+        if str(node_id) in self._audio_queue:
+            self._audio_queue[str(node_id)].put(None)  # ジェネレーター終了
 
     def get_setting_dict(self, node_id):
         # タグ名
