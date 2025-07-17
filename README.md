@@ -386,6 +386,18 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
             チャンクデータを受け取り、Silero VADを用いた音声区間検出を行うノード
         </td>
     </tr>
+    <tr>
+        <td width="200">
+            Voice Activity Detection(WebRTC VAD)
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/372418e7-61b7-4f08-8606-e649535e68e5"" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、WebRTC VADを用いた音声区間検出を行うノード<br>
+            aggressive は VAD の感度指定で、0がデフォルト、3が最高感度です。
+        </td>
+    </tr>
 </table>
 </details>
 
