@@ -4,5 +4,6 @@ onnxruntime
 opencv-python
 librosa
 sounddevice
+webrtcvad-wheels
 
 google-cloud-speech
