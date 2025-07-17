@@ -386,6 +386,18 @@ Read the node settings(json file) output by Export<br>
             A node that receives chunk data and performs voice activity detection using Silero VAD.
         </td>
     </tr>
+    <tr>
+        <td width="200">
+            Voice Activity Detection(WebRTC VAD)
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/372418e7-61b7-4f08-8606-e649535e68e5"" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            A node that receives chunk data and performs voice activity detection using WebRTC VAD.<br>
+            aggressive specifies the sensitivity of VAD, with 0 being the default and 3 being the most sensitive.
+        </td>
+    </tr>
 </table>
 </details>
 
