@@ -467,6 +467,31 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
 </table>
 </details>
 
+# Node(Another repository)
+他リポジトリで公開しているノードです。<br>
+Audio-Processing-Node-Editor で使用するには、各リポジトリのインストール方法に従ってください。
+
+<details>
+<summary>Input Node</summary>
+
+<table>
+    <tr>
+        <td width="200">
+            <a href=https://github.com/Kazuhito00/APNE-getUserMedia-Input-Node>Mic(getUserMedia())</a> 
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/a5231445-5c0c-4f43-92dd-c1e1d913c108" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            WebブラウザのgetUserMedia()経由で取得したマイク入力を扱うノード<br>
+            ノードを生成するとブラウザが立ち上がります。<br>
+          　「1. Prepare Microphone」を押下後、マイク使用を許可し、「Start Recording」を押下してください。
+        </td>
+    </tr>
+</table>
+
+</details>
+
 # Author
 高橋かずひと(https://twitter.com/KzhtTkhs)
  
