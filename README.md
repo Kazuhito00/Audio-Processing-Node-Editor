@@ -19,6 +19,7 @@ opencv-python        4.11.0.86 or later
 librosa              0.11.0    or later
 sounddevice          0.5.1     or later
 soundfile            0.13.1    or later
+webrtcvad-wheels     2.0.14    or later
 google-cloud-speech  2.32.0    or later ※Speech Recognition(Google Speech-to-Text)ノードを実行する場合
 ```
 
