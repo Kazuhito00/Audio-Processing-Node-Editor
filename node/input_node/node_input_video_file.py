@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+import copy
 import subprocess
 import tempfile
 import time
 from typing import Any, Dict, List, Optional
 
+import cv2
 import dearpygui.dearpygui as dpg  # type: ignore
 import numpy as np
 import soundfile as sf
@@ -26,6 +28,7 @@ class Node(DpgNodeABC):
         self._start_time: Optional[float] = None
         self._paused_elapsed: float = 0.0
         self._default_sampling_rate: int = 16000
+        self._alpha_cache = None
 
     def close(self, node_id: str) -> None:
         clip = self._node_data[str(node_id)].get("clip")
@@ -35,10 +38,18 @@ class Node(DpgNodeABC):
             del self._node_data[str(node_id)]
 
     def get_setting_dict(self, node_id: str) -> Dict[str, Any]:
-        return self._setting_dict
+        tag_name_list = get_tag_name_list(
+            node_id,
+            self.node_tag,
+            [self.TYPE_TEXT],
+            [self.TYPE_SIGNAL_CHUNK, self.TYPE_TIME_MS],
+        )
+        tag_node_name: str = tag_name_list[0]
+        pos: List[int] = dpg.get_item_pos(tag_node_name)
+        return {"ver": self._ver, "pos": pos}
 
     def set_setting_dict(self, node_id: str, setting_dict: Dict[str, Any]) -> None:
-        self._setting_dict.update(setting_dict)
+        pass
 
     def _update_audio_display(self, node_id: str) -> None:
         full_audio_buffer = self._node_data[str(node_id)].get(
@@ -287,19 +298,6 @@ class Node(DpgNodeABC):
                     self._last_frame_update_time = time.time()
 
                     try:
-                        # 現在の経過時間に基づいてフレームを取得
-                        frame = clip.get_frame(elapsed)
-                        # MoviePyのフレームはRGB、DearPyGuiはRGBAを期待するため変換
-                        frame_rgb = frame.astype(np.float32) / 255.0
-                        # アルファチャンネルを追加 (不透明の場合は1.0)
-                        alpha_channel = np.ones(
-                            (*frame_rgb.shape[:2], 1), dtype=np.float32
-                        )
-                        texture_data = np.concatenate(
-                            (frame_rgb, alpha_channel), axis=-1
-                        )
-                        texture_data = texture_data.flatten()
-
                         video_width = self._node_data[str(node_id)].get("video_width")
                         video_height = self._node_data[str(node_id)].get("video_height")
                         aspect_ratio = video_width / video_height
@@ -310,6 +308,33 @@ class Node(DpgNodeABC):
                         display_height = int(
                             display_width / aspect_ratio
                         )  # アスペクト比を維持して高さを調整
+
+                        # 現在の経過時間に基づいてフレームを取得
+                        frame = clip.get_frame(elapsed)
+                        frame = cv2.resize(frame, dsize=(display_width, display_height))
+
+                        # RGBをfloat32に正規化（in-place演算）
+                        frame_rgb = frame.astype(np.float32)
+                        np.multiply(frame_rgb, 1 / 255.0, out=frame_rgb)
+
+                        # アルファチャンネル（キャッシュして使い回し）
+                        if (
+                            self._alpha_cache is None
+                            or self._alpha_cache.shape[:2] != frame.shape[:2]
+                        ):
+                            self._alpha_cache = np.ones(
+                                (*frame.shape[:2], 1), dtype=np.float32
+                            )
+                        alpha_channel = self._alpha_cache
+
+                        # RGBA結合 → flatten
+                        h, w = frame.shape[:2]
+                        rgba = np.empty((h, w, 4), dtype=np.float32)
+                        rgba[..., :3] = frame_rgb
+                        rgba[..., 3:] = (
+                            alpha_channel  # alpha_channel.shape == (h, w, 1)
+                        )
+                        texture_data = rgba.ravel()
 
                         dpg.set_value(texture_tag, texture_data)
                         dpg.configure_item(
@@ -549,8 +574,20 @@ class Node(DpgNodeABC):
         if not clip:
             return
 
+        video_width = self._node_data[str(node_id)].get("video_width")
+        video_height = self._node_data[str(node_id)].get("video_height")
+        aspect_ratio = video_width / video_height
+
+        display_width = self._setting_dict.get(
+            "waveform_width", 200
+        )  # 波形の幅に合わせる
+        display_height = int(
+            display_width / aspect_ratio
+        )  # アスペクト比を維持して高さを調整
+
         # 動画の初期フレームをテクスチャとして設定
         first_frame = clip.get_frame(0)  # 最初のフレームを取得
+        first_frame = cv2.resize(first_frame, dsize=(display_width, display_height))
         # MoviePyのフレームはRGB、DearPyGuiはRGBAを期待するため変換
         frame_rgb = first_frame.astype(np.float32) / 255.0
         # アルファチャンネルを追加 (不透明の場合は1.0)
@@ -558,8 +595,6 @@ class Node(DpgNodeABC):
         texture_data = np.concatenate((frame_rgb, alpha_channel), axis=-1)
         texture_data = texture_data.flatten()
 
-        video_width = clip.w
-        video_height = clip.h
         texture_tag = f"{node_id}:video_texture"
         placeholder_texture_tag = f"{node_id}:video_texture_placeholder"
 
@@ -574,8 +609,8 @@ class Node(DpgNodeABC):
 
         with dpg.texture_registry(show=False):
             dpg.add_raw_texture(
-                video_width,
-                video_height,
+                display_width,
+                display_height,
                 texture_data,
                 format=dpg.mvFormat_Float_rgba,
                 tag=texture_tag,
