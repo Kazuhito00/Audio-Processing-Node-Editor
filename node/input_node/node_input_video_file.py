@@ -8,9 +8,7 @@ from typing import Any, Dict, List, Optional
 import dearpygui.dearpygui as dpg  # type: ignore
 import numpy as np
 import soundfile as sf
-from moviepy import VideoFileClip
 from node_editor.util import dpg_set_value, get_tag_name_list  # type: ignore
-from scipy.signal import resample
 
 from node.node_abc import DpgNodeABC  # type: ignore
 
@@ -42,7 +40,9 @@ class Node(DpgNodeABC):
         self._setting_dict.update(setting_dict)
 
     def _update_audio_display(self, node_id: str) -> None:
-        full_audio_buffer = self._node_data[str(node_id)].get("audio_buffer", np.array([]))
+        full_audio_buffer = self._node_data[str(node_id)].get(
+            "audio_buffer", np.array([])
+        )
         sr = self._node_data[str(node_id)].get("sr", self._default_sampling_rate)
         audio_duration = len(full_audio_buffer) / sr
 
@@ -51,7 +51,7 @@ class Node(DpgNodeABC):
         # For initial display, the plot should show a 5-second blank leading section
         # and the audio should start appearing from the right edge of this window.
         # So, the plot range should be from -plot_duration to 0.0 (or audio_duration if it's shorter than 5s)
-        
+
         # The right edge of the plot should be 0.0 (initial playback time)
         plot_end_time = 0.0
         # The left edge of the plot should be 5.0 seconds before the right edge
@@ -60,7 +60,9 @@ class Node(DpgNodeABC):
         # Calculate sample indices for the full_audio_buffer
         # If plot_start_time is negative, the actual_start_sample will be 0
         actual_start_sample = int(max(0.0, plot_start_time) * sr)
-        actual_end_sample = int(min(audio_duration, plot_end_time) * sr) # Ensure we don't go beyond audio_duration
+        actual_end_sample = int(
+            min(audio_duration, plot_end_time) * sr
+        )  # Ensure we don't go beyond audio_duration
 
         y_display_raw = full_audio_buffer[actual_start_sample:actual_end_sample]
 
@@ -68,15 +70,17 @@ class Node(DpgNodeABC):
         leading_zeros_samples = 0
         if plot_start_time < 0:
             leading_zeros_samples = int(abs(plot_start_time) * sr)
-        
+
         # Pad y_display with leading zeros if necessary
-        y_display = np.pad(y_display_raw, (leading_zeros_samples, 0), 'constant')
+        y_display = np.pad(y_display_raw, (leading_zeros_samples, 0), "constant")
 
         # If the total length is still less than expected, pad with trailing zeros
         expected_display_samples = int(plot_duration * sr)
         if len(y_display) < expected_display_samples:
-            y_display = np.pad(y_display, (0, expected_display_samples - len(y_display)), 'constant')
-        
+            y_display = np.pad(
+                y_display, (0, expected_display_samples - len(y_display)), "constant"
+            )
+
         # Trim if it's longer than expected (shouldn't happen with correct padding logic)
         y_display = y_display[:expected_display_samples]
 
@@ -361,7 +365,7 @@ class Node(DpgNodeABC):
 
             # Calculate sample indices for the full_audio_buffer
             sr = self._default_sampling_rate
-            
+
             # Calculate the number of samples to display
             expected_display_samples = int(plot_duration * sr)
 
@@ -376,14 +380,18 @@ class Node(DpgNodeABC):
             leading_zeros_samples = 0
             if plot_start_time < 0:
                 leading_zeros_samples = int(abs(plot_start_time) * sr)
-            
+
             # Pad y_display with leading zeros if necessary
-            y_display = np.pad(y_display_raw, (leading_zeros_samples, 0), 'constant')
+            y_display = np.pad(y_display_raw, (leading_zeros_samples, 0), "constant")
 
             # If the total length is still less than expected, pad with trailing zeros
             if len(y_display) < expected_display_samples:
-                y_display = np.pad(y_display, (0, expected_display_samples - len(y_display)), 'constant')
-            
+                y_display = np.pad(
+                    y_display,
+                    (0, expected_display_samples - len(y_display)),
+                    "constant",
+                )
+
             # Trim if it's longer than expected (shouldn't happen with correct padding logic)
             y_display = y_display[:expected_display_samples]
 
@@ -440,9 +448,7 @@ class Node(DpgNodeABC):
         if len(filename_without_ext) >= 23:
             display_name = f"{filename_without_ext[:20]}...{file_extension}"
 
-        dpg.set_item_label(
-            tag_node_name, f"{self.node_label} ({display_name})"
-        )
+        dpg.set_item_label(tag_node_name, f"{self.node_label} ({display_name})")
 
         # ローディングアイコン表示
         loading_tag = f"{node_id}:audio_file_loading"
@@ -450,6 +456,8 @@ class Node(DpgNodeABC):
             dpg.configure_item(loading_tag, show=True)
 
         try:
+            from moviepy import VideoFileClip
+
             # 既存のクリップがあれば閉じる
             existing_clip = self._node_data[str(node_id)].get("clip")
             if existing_clip:
@@ -478,16 +486,9 @@ class Node(DpgNodeABC):
                 audio_array, original_sr = sf.read(temp_audio_file.name)
                 os.unlink(temp_audio_file.name)  # 一時ファイルを削除
 
-                # ここでのモノラル変換は不要になるが、念のため残しておく
+                # モノラル変換
                 if audio_array.ndim == 2:
                     audio_array = np.mean(audio_array, axis=1)
-
-                # リサンプリングは不要になるはずだが、念のため条件分岐は残しておく
-                if original_sr != self._default_sampling_rate:
-                    num_samples = int(
-                        len(audio_array) * self._default_sampling_rate / original_sr
-                    )
-                    audio_array = resample(audio_array, num_samples)
 
                 # 正規化と増幅
                 abs_max = np.max(np.abs(audio_array))
