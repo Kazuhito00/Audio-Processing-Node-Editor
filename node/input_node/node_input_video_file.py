@@ -477,19 +477,20 @@ class Node(DpgNodeABC):
                 )
 
                 # soundfileでオーディオを読み込む
-                audio_array, original_sr = sf.read(temp_audio_file.name)
+                audio_array, original_sr = sf.read(
+                    temp_audio_file.name, dtype="float32"
+                )
+                print("original_sr", original_sr)
                 os.unlink(temp_audio_file.name)  # 一時ファイルを削除
 
                 # モノラル変換
                 if audio_array.ndim == 2:
                     audio_array = np.mean(audio_array, axis=1)
 
-                # 正規化と増幅
+                # 正規化
                 abs_max = np.max(np.abs(audio_array))
                 if abs_max > 1e-6:
-                    audio_array = (
-                        audio_array / abs_max * 0.8
-                    )  # -1.0から1.0に正規化し、80%に増幅
+                    audio_array = audio_array / abs_max
 
                 self._node_data[str(node_id)]["audio_buffer"] = audio_array
                 self._node_data[str(node_id)]["sr"] = self._default_sampling_rate
