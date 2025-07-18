@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import os
 import time
 from typing import Any, Dict, List, Optional
 
@@ -251,7 +252,14 @@ class Node(DpgNodeABC):
             [self.TYPE_SIGNAL_CHUNK, self.TYPE_TIME_MS],
         )
         tag_node_name = tag_name_list[0]
-        dpg.set_item_label(tag_node_name, f"{self.node_label} ({data['file_name']})")
+        base_filename = data['file_name']
+        filename_without_ext, file_extension = os.path.splitext(base_filename)
+
+        display_name = base_filename
+        if len(filename_without_ext) >= 23:
+            display_name = f"{filename_without_ext[:20]}...{file_extension}"
+
+        dpg.set_item_label(tag_node_name, f"{self.node_label} ({display_name})")
 
         # ローディングアイコン
         loading_tag = f"{node_id}:audio_file_loading"
