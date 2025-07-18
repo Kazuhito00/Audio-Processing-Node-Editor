@@ -5,5 +5,5 @@ opencv-python
 librosa
 sounddevice
 webrtcvad-wheels
-opencv-python
+
 google-cloud-speech
