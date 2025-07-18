@@ -23,6 +23,8 @@ webrtcvad-wheels     2.0.14    or later
 google-cloud-speech  2.32.0    or later ※Speech Recognition(Google Speech-to-Text)ノードを実行する場合
 ```
 
+Video Fileノードを使用する場合は、[FFmpeg](https://ffmpeg.org/) をインストールしてください。
+
 # Installation
 1. リポジトリをクローン<br>`git clone https://github.com/Kazuhito00/Audio-Processing-Node-Editor`
 1. パッケージをインストール <br>`pip install -r requirements.txt`  
