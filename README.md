@@ -108,6 +108,19 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
     </tr>
     <tr>
         <td width="200">
+            Video File
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/26e095e3-5121-4d67-b3fe-3b81f9fd7a49" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            動画ファイル(mp4, avi, webm)を読み込み、チャンクデータを出力するノード<br>
+            「Select Audio File」ボタンでファイルダイアログをオープン<br>
+            出力されるチャンクデータは全トラックを合成したデータ
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
             Noise
         </td>
         <td width="320">
