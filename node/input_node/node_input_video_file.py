@@ -48,44 +48,38 @@ class Node(DpgNodeABC):
 
         plot_duration = 5.0  # 5秒間の表示ウィンドウ
 
-        # For initial display, the plot should show a 5-second blank leading section
-        # and the audio should start appearing from the right edge of this window.
-        # So, the plot range should be from -plot_duration to 0.0 (or audio_duration if it's shorter than 5s)
-
-        # The right edge of the plot should be 0.0 (initial playback time)
+        # プロットの右端は0.0（初期再生時間）
         plot_end_time = 0.0
-        # The left edge of the plot should be 5.0 seconds before the right edge
         plot_start_time = plot_end_time - plot_duration
 
-        # Calculate sample indices for the full_audio_buffer
-        # If plot_start_time is negative, the actual_start_sample will be 0
+        # full_audio_bufferのサンプルインデックスを計算
+        # plot_start_timeが負の場合、actual_start_sampleは0
         actual_start_sample = int(max(0.0, plot_start_time) * sr)
         actual_end_sample = int(
             min(audio_duration, plot_end_time) * sr
-        )  # Ensure we don't go beyond audio_duration
+        )  # audio_durationを超えないようにする
 
         y_display_raw = full_audio_buffer[actual_start_sample:actual_end_sample]
 
-        # Calculate how many leading zeros are needed for the blank space
+        # 空白スペースに必要な先行ゼロの数を計算
         leading_zeros_samples = 0
         if plot_start_time < 0:
             leading_zeros_samples = int(abs(plot_start_time) * sr)
 
-        # Pad y_display with leading zeros if necessary
+        # 必要に応じてy_displayに先行ゼロをパディング
         y_display = np.pad(y_display_raw, (leading_zeros_samples, 0), "constant")
 
-        # If the total length is still less than expected, pad with trailing zeros
+        # 合計の長さが期待より短い場合、末尾ゼロをパディング
         expected_display_samples = int(plot_duration * sr)
         if len(y_display) < expected_display_samples:
             y_display = np.pad(
                 y_display, (0, expected_display_samples - len(y_display)), "constant"
             )
 
-        # Trim if it's longer than expected (shouldn't happen with correct padding logic)
+        # 期待より長い場合はトリム（正しいパディングロジックであれば発生しないはず）
         y_display = y_display[:expected_display_samples]
 
-        # Calculate x_display values
-        # x_display should start from plot_start_time
+        # x_displayの値を計算
         x_display = np.arange(len(y_display)) / sr + plot_start_time
 
         if len(y_display) > 0:
@@ -296,7 +290,7 @@ class Node(DpgNodeABC):
                         frame = clip.get_frame(elapsed)
                         # MoviePyのフレームはRGB、DearPyGuiはRGBAを期待するため変換
                         frame_rgb = frame.astype(np.float32) / 255.0
-                        # Add alpha channel (1.0 for opaque)
+                        # アルファチャンネルを追加 (不透明の場合は1.0)
                         alpha_channel = np.ones(
                             (*frame_rgb.shape[:2], 1), dtype=np.float32
                         )
@@ -359,32 +353,32 @@ class Node(DpgNodeABC):
             # --- 波形表示の更新 ---
             plot_duration = 5.0  # 5秒間の表示ウィンドウ
 
-            # The current playback time 'elapsed' should be at the right edge of the plot
+            # 現在の再生時間'elapsed'はプロットの右端
             plot_end_time = elapsed
             plot_start_time = elapsed - plot_duration
 
-            # Calculate sample indices for the full_audio_buffer
+            # full_audio_bufferのサンプルインデックスを計算
             sr = self._default_sampling_rate
 
-            # Calculate the number of samples to display
+            # 表示するサンプル数を計算
             expected_display_samples = int(plot_duration * sr)
 
-            # Determine the actual start and end samples from the audio buffer
-            # If plot_start_time is negative, the actual_start_sample will be 0
+            # オーディオバッファから実際の開始サンプルと終了サンプルを決定
+            # plot_start_timeが負の場合、actual_start_sampleは0
             actual_start_sample = int(max(0.0, plot_start_time) * sr)
             actual_end_sample = int(plot_end_time * sr)
 
             y_display_raw = full_audio_buffer[actual_start_sample:actual_end_sample]
 
-            # Calculate how many leading zeros are needed for the blank space
+            # 空白スペースに必要な先行ゼロの数を計算
             leading_zeros_samples = 0
             if plot_start_time < 0:
                 leading_zeros_samples = int(abs(plot_start_time) * sr)
 
-            # Pad y_display with leading zeros if necessary
+            # 必要に応じてy_displayに先行ゼロをパディング
             y_display = np.pad(y_display_raw, (leading_zeros_samples, 0), "constant")
 
-            # If the total length is still less than expected, pad with trailing zeros
+            # 合計の長さが期待より短い場合、末尾ゼロをパディング
             if len(y_display) < expected_display_samples:
                 y_display = np.pad(
                     y_display,
@@ -392,11 +386,11 @@ class Node(DpgNodeABC):
                     "constant",
                 )
 
-            # Trim if it's longer than expected (shouldn't happen with correct padding logic)
+            # 期待より長い場合はトリム（正しいパディングロジックであれば発生しないはず）
             y_display = y_display[:expected_display_samples]
 
-            # Calculate x_display values
-            # x_display should start from plot_start_time
+            # x_displayの値を計算
+            # x_displayはplot_start_timeから始まるべきです。
             x_display = np.arange(len(y_display)) / sr + plot_start_time
 
             if len(y_display) > 0:
@@ -536,7 +530,7 @@ class Node(DpgNodeABC):
         first_frame = clip.get_frame(0)  # 最初のフレームを取得
         # MoviePyのフレームはRGB、DearPyGuiはRGBAを期待するため変換
         frame_rgb = first_frame.astype(np.float32) / 255.0
-        # Add alpha channel (1.0 for opaque)
+        # アルファチャンネルを追加 (不透明の場合は1.0)
         alpha_channel = np.ones((*frame_rgb.shape[:2], 1), dtype=np.float32)
         texture_data = np.concatenate((frame_rgb, alpha_channel), axis=-1)
         texture_data = texture_data.flatten()
@@ -576,7 +570,7 @@ class Node(DpgNodeABC):
             height=display_height,
         )
 
-        # Clear the audio line series and reset axis limits for initial blank display
+        # オーディオラインシリーズをクリアし、初期の空白表示のために軸の制限をリセット
         dpg.set_value(f"{node_id}:audio_line_series", [[], []])
         dpg.set_axis_limits(f"{node_id}:xaxis", 0.0, 5.0)
 
