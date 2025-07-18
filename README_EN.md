@@ -108,6 +108,19 @@ Read the node settings(json file) output by Export<br>
     </tr>
     <tr>
         <td width="200">
+            Video File
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/26e095e3-5121-4d67-b3fe-3b81f9fd7a49" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            A node that reads video files (mp4, avi, webm) and outputs chunk data.<br>
+            Click the "Select Audio File" button to open the file dialog.<br>
+            The chunk data that is output is a composite of all tracks.
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
             Noise
         </td>
         <td width="320">
