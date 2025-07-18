@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+import subprocess
 import tempfile
 import time
 from typing import Any, Dict, List, Optional
@@ -464,28 +465,39 @@ class Node(DpgNodeABC):
             self._node_data[str(node_id)]["video_width"] = clip.w
             self._node_data[str(node_id)]["video_height"] = clip.h
 
-            # オーディオの抽出とバッファリング
-            audio_clip = clip.audio
-            if audio_clip:
-                # 一時ファイルにオーディオを書き出す
-                temp_audio_file = tempfile.NamedTemporaryFile(
-                    suffix=".wav", delete=False
-                )
-                temp_audio_file.close()
-                audio_clip.write_audiofile(
-                    temp_audio_file.name, fps=self._default_sampling_rate
+            # オーディオの抽出とバッファリング (ffmpegを使用)
+            temp_audio_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+            temp_audio_file.close()
+
+            try:
+                # ffmpegコマンドの構築
+                command = [
+                    "ffmpeg",
+                    "-i",
+                    video_path,
+                    "-vn",  # ビデオなし
+                    "-acodec",
+                    "pcm_f32le",  # 32-bit float PCM
+                    "-ar",
+                    str(self._default_sampling_rate),  # サンプリングレート
+                    "-ac",
+                    "1",  # モノラル
+                    "-y",  # 既存ファイルを上書き
+                    temp_audio_file.name,
+                ]
+
+                # ffmpegの実行
+                subprocess.run(
+                    command,
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
                 )
 
                 # soundfileでオーディオを読み込む
                 audio_array, original_sr = sf.read(
                     temp_audio_file.name, dtype="float32"
                 )
-                print("original_sr", original_sr)
-                os.unlink(temp_audio_file.name)  # 一時ファイルを削除
-
-                # モノラル変換
-                if audio_array.ndim == 2:
-                    audio_array = np.mean(audio_array, axis=1)
 
                 # 正規化
                 abs_max = np.max(np.abs(audio_array))
@@ -494,9 +506,19 @@ class Node(DpgNodeABC):
 
                 self._node_data[str(node_id)]["audio_buffer"] = audio_array
                 self._node_data[str(node_id)]["sr"] = self._default_sampling_rate
-            else:
+
+            except subprocess.CalledProcessError as e:
+                print(
+                    f"[ERROR] ffmpeg failed. It's possible the video has no audio track. Detail: {e.stderr.decode()}"
+                )
                 self._node_data[str(node_id)]["audio_buffer"] = np.array([])
                 self._node_data[str(node_id)]["sr"] = self._default_sampling_rate
+            except Exception as e:
+                print(f"[ERROR] Failed to process audio with ffmpeg: {e}")
+                self._node_data[str(node_id)]["audio_buffer"] = np.array([])
+                self._node_data[str(node_id)]["sr"] = self._default_sampling_rate
+            finally:
+                os.unlink(temp_audio_file.name)  # 一時ファイルを削除
 
             # UIの更新
             self._update_ui_after_loading(node_id, video_path)
