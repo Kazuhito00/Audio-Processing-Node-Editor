@@ -3,12 +3,10 @@
 import time
 from typing import Any, Dict, List, Optional
 
-import cv2  # type: ignore
 import dearpygui.dearpygui as dpg  # type: ignore
 import numpy as np
 from node.node_abc import DpgNodeABC  # type: ignore
-from node_editor.util import (  # type: ignore
-    convert_cv_to_dpg,
+from node_editor.util import (
     dpg_set_value,
     get_tag_name_list,
 )
@@ -17,8 +15,8 @@ from node_editor.util import (  # type: ignore
 class Node(DpgNodeABC):
     _ver = "0.0.1"
 
-    node_label = "Simple Spectrogram"
-    node_tag = "Spectrogram"
+    node_label = "Power Spectrum"
+    node_tag = "PowerSpectrum"
 
     def __init__(self):
         self._node_data = {}
@@ -52,60 +50,23 @@ class Node(DpgNodeABC):
         self._chunk_size: int = self._setting_dict.get("chunk_size", 1024)
         self._use_pref_counter: bool = self._setting_dict["use_pref_counter"]
 
-        self._spectrogram_window_size: int = self._setting_dict.get(
-            "spectrogram_window_size", 512
-        )
-        self._spectrogram_hop_size: int = self._setting_dict.get(
-            "spectrogram_hop_size", 128
-        )
-        self._spectrogram_window_name: int = self._setting_dict.get(
-            "spectrogram_window", "hamming"
-        )
-        self._spectrogram_scaling = self._setting_dict.get(
-            "spectrogram_scaling", [-80, 0]
-        )
-        self._spectrogram_smooth_order = self._setting_dict.get(
-            "spectrogram_smooth_order", 5
+        self._fft_window_size: int = self._setting_dict.get("fft_window_size", 1024)
+        self._power_spectrum_scaling = self._setting_dict.get(
+            "power_spectrum_scaling",
+            [-80, 40],  # dBスケールの一般的な範囲
         )
 
         # 保持用バッファなど
         self._node_data[str(node_id)] = {
             "current_chunk_index": -1,
-            "spectrogram": np.full(
-                (
-                    self._spectrogram_window_size // 2 + 1,
-                    int(
-                        (self._default_sampling_rate * 5) // self._spectrogram_hop_size
-                    ),
-                ),
-                fill_value=255,
-                dtype=np.uint8,
-            ),
-            "spec_history": [],
             "frame_buffer": np.zeros(0, dtype=np.float32),
+            "power_spectrum_data": np.full(
+                self._fft_window_size // 2 + 1, -80, dtype=np.float32
+            ),  # 初期値を-80dBに設定
+            "freq_data": np.linspace(
+                0, self._default_sampling_rate / 2, self._fft_window_size // 2 + 1
+            ),
         }
-
-        # 初期化用画像
-        temp_image = np.full(
-            (self._waveform_h, self._waveform_w, 3),
-            fill_value=(128, 0, 0),
-            dtype=np.uint8,
-        )
-        temp_texture = convert_cv_to_dpg(
-            temp_image,
-            self._waveform_w,
-            self._waveform_h,
-        )
-
-        # テクスチャ登録
-        with dpg.texture_registry(show=False):
-            dpg.add_raw_texture(
-                self._waveform_w,
-                self._waveform_h,
-                temp_texture,
-                tag=output_tag_list[0][1],
-                format=dpg.mvFormat_Float_rgb,
-            )
 
         # ノード
         with dpg.node(
@@ -128,7 +89,40 @@ class Node(DpgNodeABC):
                 tag=output_tag_list[0][0],
                 attribute_type=dpg.mvNode_Attr_Static,
             ):
-                dpg.add_image(output_tag_list[0][1])
+                with dpg.plot(
+                    height=self._waveform_h,
+                    width=self._waveform_w,
+                    tag=output_tag_list[0][1] + "_plot",
+                    no_inputs=False,
+                ):
+                    dpg.add_plot_axis(
+                        dpg.mvXAxis,
+                        no_label=True,
+                        no_tick_labels=True,
+                        tag=output_tag_list[0][1] + "_xaxis",
+                    )
+                    dpg.add_plot_axis(
+                        dpg.mvYAxis,
+                        no_label=True,
+                        no_tick_labels=True,
+                        tag=output_tag_list[0][1] + "_yaxis",
+                    )
+                    dpg.set_axis_limits(
+                        output_tag_list[0][1] + "_xaxis",
+                        0,
+                        self._default_sampling_rate / 2,
+                    )
+                    dpg.set_axis_limits(
+                        output_tag_list[0][1] + "_yaxis",
+                        self._power_spectrum_scaling[0],
+                        self._power_spectrum_scaling[1],
+                    )
+                    dpg.add_line_series(
+                        list(self._node_data[str(node_id)]["freq_data"]),
+                        list(self._node_data[str(node_id)]["power_spectrum_data"]),
+                        tag=output_tag_list[0][1] + "_series",
+                        parent=output_tag_list[0][1] + "_yaxis",
+                    )
             # 処理時間
             if self._use_pref_counter:
                 with dpg.node_attribute(
@@ -191,105 +185,68 @@ class Node(DpgNodeABC):
                     and self._node_data[str(node_id)]["current_chunk_index"] != -1
                 ):
                     print(
-                        f"    [Warning] Spectrogram Node Chunk Index Gap: {chunk_index - self._node_data[str(node_id)]['current_chunk_index']} (Index: {self._node_data[str(node_id)]['current_chunk_index']} -> {chunk_index})"
+                        f"    [Warning] Power Spectrum Node Chunk Index Gap: {chunk_index - self._node_data[str(node_id)]['current_chunk_index']} (Index: {self._node_data[str(node_id)]['current_chunk_index']} -> {chunk_index})"
                     )
 
-                # スペクトログラム
-                n_fft = self._spectrogram_window_size
-                hop_size = self._spectrogram_hop_size
+                n_fft = self._fft_window_size
                 sampling_rate = self._default_sampling_rate
 
                 frame_buffer = self._node_data[str(node_id)]["frame_buffer"]
                 frame_buffer = np.concatenate([frame_buffer, chunk])
 
-                # フレーム処理
-                while len(frame_buffer) >= n_fft:
-                    frame = frame_buffer[:n_fft]
+                # frame_bufferがn_fftより大きい場合、最新のn_fftサンプルを保持
+                if len(frame_buffer) > n_fft:
+                    frame_buffer = frame_buffer[-n_fft:]
 
-                    # 窓関数 + FFT
-                    window = np.hamming(n_fft)
-                    spectrum = np.fft.rfft(frame * window)
-                    magnitude = np.abs(spectrum)
+                # FFTウィンドウサイズ以上のデータがある場合のみ処理
+                # 不足している場合はゼロパディング
+                if len(frame_buffer) < n_fft:
+                    frame = np.pad(
+                        frame_buffer, (0, n_fft - len(frame_buffer)), "constant"
+                    )
+                else:
+                    frame = frame_buffer
 
-                    # dBスケーリング: 20 * log10(|A| / max(|A|))
-                    ref = np.max(magnitude)
-                    if ref < 1e-3:
-                        db = np.full_like(magnitude, -80.0)
-                    else:
-                        db = 20 * np.log10(np.maximum(magnitude, 1e-10) / ref)
-                        db = np.clip(db, -80.0, 0.0)
+                # 窓関数 + FFT
+                window = np.hamming(n_fft)
+                spectrum = np.fft.rfft(frame * window)
+                power_spectrum = np.abs(spectrum) ** 2  # パワースペクトル
+                
+                # dBスケールに変換
+                # ノイズフロアを設定してゼロ除算を回避
+                power_spectrum_db = 10 * np.log10(np.maximum(power_spectrum, 1e-10))
+                power_spectrum_db = np.clip(power_spectrum_db, self._power_spectrum_scaling[0], self._power_spectrum_scaling[1])
 
-                    # カラーマップ用のスケーリング（0〜255）
-                    column = np.interp(db, [-80, 0], [255, 0]).astype(np.uint8)
+                series_tag = output_tag_list[0][1] + "_series"
 
-                    # 平滑化（任意）
-                    spec_history = self._node_data[str(node_id)]["spec_history"]
-                    spec_history.append(column)
-                    if len(spec_history) > self._spectrogram_smooth_order:
-                        spec_history.pop(0)
-                    column = np.mean(spec_history, axis=0).astype(np.uint8)
-                    self._node_data[str(node_id)]["spec_history"] = spec_history
-
-                    # スペクトログラムバッファ更新
-                    spec_buf = self._node_data[str(node_id)]["spectrogram"]
-                    spec_buf = np.roll(spec_buf, -1, axis=1)
-                    spec_buf[:, -1] = column
-                    self._node_data[str(node_id)]["spectrogram"] = spec_buf
-
-                    # バッファを進める
-                    frame_buffer = frame_buffer[hop_size:]
+                # Verify lengths before plotting
+                if len(self._node_data[str(node_id)]["freq_data"]) != len(
+                    power_spectrum_db
+                ):
+                    pass
+                else:
+                    # プロットデータ更新
+                    dpg_set_value(
+                        series_tag,
+                        [
+                            list(self._node_data[str(node_id)]["freq_data"]),
+                            list(power_spectrum_db),
+                        ],
+                    )
 
                 # バッファ保存
                 self._node_data[str(node_id)]["frame_buffer"] = frame_buffer
-
-                # 表示する周波数帯域を制限
-                f_max = 8000
-                k_max = int((f_max * n_fft) / sampling_rate)
-
-                # 最新のスペクトログラムを取得（上下反転して0Hzを下に）
-                display_buf = self._node_data[str(node_id)]["spectrogram"]
-                display_buf = display_buf[display_buf.shape[0] - k_max :, :]
-                display_buf = np.flipud(display_buf)
-
-                # OpenCVでリサイズ＆カラー変換
-                display_buf = cv2.resize(
-                    display_buf, dsize=(self._waveform_w, self._waveform_h)
-                )
-                color_img = cv2.applyColorMap(display_buf, cv2.COLORMAP_JET)
-                color_img = cv2.cvtColor(color_img, cv2.COLOR_BGR2RGB)
-
-                # 描画
-                texture = convert_cv_to_dpg(
-                    color_img,
-                    self._waveform_w,
-                    self._waveform_h,
-                )
-                dpg_set_value(output_tag_list[0][1], texture)
-
                 self._node_data[str(node_id)]["current_chunk_index"] = chunk_index
         elif current_status == "stop":
             self._node_data[str(node_id)]["current_chunk_index"] = -1
-
-            self._node_data[str(node_id)]["spectrogram"] = np.full(
-                (
-                    512 // 2 + 1,
-                    int((self._default_sampling_rate * 5) // 128),
-                ),
-                fill_value=255,
-                dtype=np.uint8,
-            )
-
-            temp_image = np.full(
-                (self._waveform_h, self._waveform_w, 3),
-                fill_value=(128, 0, 0),
-                dtype=np.uint8,
-            )
-            temp_texture = convert_cv_to_dpg(
-                temp_image,
-                self._waveform_w,
-                self._waveform_h,
-            )
-            dpg_set_value(output_tag_list[0][1], temp_texture)
+            # プロットをリセット
+            dpg_set_value(
+                output_tag_list[0][1] + "_series",
+                [
+                    list(self._node_data[str(node_id)]["freq_data"]),
+                    list(np.full(self._fft_window_size // 2 + 1, self._power_spectrum_scaling[0], dtype=np.float32)),
+                ],
+            )  # リセット時も0に
 
         # 計測終了
         if self._use_pref_counter:
