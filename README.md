@@ -350,6 +350,18 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
     </tr>
     <tr>
         <td width="200">
+            Power Spectrum
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/a6b68760-eeb4-4887-9d3b-6354b8d91fbd" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、簡易的なパワースペクトルを表示するノード<br>
+            -80dB～40dBの表示範囲
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
             Simple Spectrogram
         </td>
         <td width="320">
