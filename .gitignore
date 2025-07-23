@@ -187,3 +187,7 @@ _ref/*
 
 # Claude
 .claude/*
+
+# PyInstaller
+icon.ico
+main_win64.spec
