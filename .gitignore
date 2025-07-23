@@ -191,3 +191,5 @@ _ref/*
 # PyInstaller
 icon.ico
 main_win64.spec
+dist/*
+build/*
