@@ -26,9 +26,14 @@ google-cloud-speech  2.32.0    or later ※Speech Recognition(Google Speech-to-T
 Video Fileノードを使用する場合は、[FFmpeg](https://ffmpeg.org/) をインストールしてください。
 
 # Installation
-1. リポジトリをクローン<br>`git clone https://github.com/Kazuhito00/Audio-Processing-Node-Editor`
-1. パッケージをインストール <br>`pip install -r requirements.txt`  
-1. 「main.py」を実行<br>`python main.py`
+以下の何れかの方法で環境を準備してください。<br>
+* スクリプトを直接実行
+    1. リポジトリをクローン<br>`git clone https://github.com/Kazuhito00/Audio-Processing-Node-Editor`
+    1. パッケージをインストール <br>`pip install -r requirements.txt`  
+    1. 「main.py」を実行<br>`python main.py`
+* 実行ファイルを利用(Windowsのみ)
+    1. [apn-editor_win_x86_64.zip](https://github.com/Kazuhito00/Audio-Processing-Node-Editor/releases/download/v0.1.0/apn-editor_v0.1.0_win_x86_64.zip)をダウンロード
+    1. 「main.exe」を実行 
 
 # Usage
 アプリの起動方法は以下です。
