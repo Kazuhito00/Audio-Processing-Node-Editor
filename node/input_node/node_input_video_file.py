@@ -126,6 +126,7 @@ class Node(DpgNodeABC):
         self._node_data[str(node_id)] = {
             "buffer": np.array([]),
             "chunk": np.array([]),
+            "audio_buffer": np.array([]),  # 初期化時に空の配列を設定
         }
 
         # 設定
@@ -348,6 +349,11 @@ class Node(DpgNodeABC):
                 # クリップがない場合、再生を停止
                 player_status_dict["current_status"] = "stop"
 
+            # オーディオデータの処理（クリップがない場合でもaudio_bufferをチェック）
+            if "audio_buffer" not in self._node_data[str(node_id)]:
+                # audio_bufferが存在しない場合は空の配列を設定
+                self._node_data[str(node_id)]["audio_buffer"] = np.array([])
+            
             sr = self._default_sampling_rate
             chunk_time = self._chunk_size / sr
             chunk_index = int(elapsed / chunk_time)
