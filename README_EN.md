@@ -20,7 +20,8 @@ librosa              0.11.0    or later
 sounddevice          0.5.1     or later
 soundfile            0.13.1    or later
 webrtcvad-wheels     2.0.14    or later
-google-cloud-speech  2.32.0    or later ※Speech Recognition(Google Speech-to-Text)ノードを実行する場合
+vosk                 0.3.45    or later *When running the Speech Recognition (Vosk) node
+google-cloud-speech  2.32.0    or later *When running the Speech Recognition (Google Speech-to-Text) node
 ```
 
 If you want to use the Video File node, please install [FFmpeg](https://ffmpeg.org/).
@@ -466,6 +467,17 @@ Read the node settings(json file) output by Export<br>
             A node that receives chunk data and transcribes it using Google Speech-to-Text.<br>
             Currently, only "Japanese" and "English" are supported.<br>
             When using this node, please set the service account key in "google_application_credentials_json" in "node_editor/setting/setting.json"<br>
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Speech Recognition(Vosk)
+        </td>
+            <img src="https://github.com/user-attachments/assets/e4deca35-57f7-47bf-95ab-30c64e9c2719" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            A node that receives chunk data and transcribes it using Vosk.<br>
+            Currently, only "Japanese" and "English" are supported.<br>
         </td>
     </tr>
 </table>
