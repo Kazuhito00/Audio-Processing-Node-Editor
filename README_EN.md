@@ -461,6 +461,7 @@ Read the node settings(json file) output by Export<br>
         <td width="200">
             Speech Recognition(Google Speech-to-Text)
         </td>
+        <td width="320">
             <img src="https://github.com/user-attachments/assets/d8aa01fe-b09c-449f-b30e-82e140c67d90" loading="lazy" width="300px">
         </td>
         <td width="760">
@@ -473,6 +474,7 @@ Read the node settings(json file) output by Export<br>
         <td width="200">
             Speech Recognition(Vosk)
         </td>
+        <td width="320">
             <img src="https://github.com/user-attachments/assets/e4deca35-57f7-47bf-95ab-30c64e9c2719" loading="lazy" width="300px">
         </td>
         <td width="760">
