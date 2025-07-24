@@ -26,9 +26,14 @@ google-cloud-speech  2.32.0    or later ※Speech Recognition(Google Speech-to-T
 If you want to use the Video File node, please install [FFmpeg](https://ffmpeg.org/).
 
 # Installation
-1. Clone repository<br>`git clone https://github.com/Kazuhito00/Audio-Processing-Node-Editor`
-1. Install package <br>`pip install -r requirements.txt`  
-1. Run "main.py" <br>`python main.py`
+Please prepare the environment by one of the following methods.<br>
+* Run the script directly
+    1. Clone repository<br>`git clone https://github.com/Kazuhito00/Audio-Processing-Node-Editor`
+    1. Install package <br>`pip install -r requirements.txt`  
+    1. Run "main.py" <br>`python main.py`
+* Use executable file (Windows only)
+    1. Download [ipn-editor_win_x86_64.zip](https://github.com/Kazuhito00/Audio-Processing-Node-Editor/releases/download/v0.1.0/apn-editor_v0.1.0_win_x86_64.zip)
+    1. Run "main.exe"
 
 # Usage
 Here's how to run the app.
