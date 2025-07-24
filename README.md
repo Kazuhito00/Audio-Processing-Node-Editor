@@ -465,6 +465,7 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
         </td>
         <td width="760">
             チャンクデータを受け取り、Google Speech-to-Textを用いて文字書き起こしを行うノード<br>
+            現在は「日本語」と「English」のみ対応。<br>
             このノードを使用する際は、「node_editor/setting/setting.json」の「google_application_credentials_json」にサービスアカウントキーを設定してください<br>
         </td>
     </tr>
