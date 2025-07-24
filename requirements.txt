@@ -6,4 +6,5 @@ librosa
 sounddevice
 webrtcvad-wheels
 
+vosk
 google-cloud-speech
