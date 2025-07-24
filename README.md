@@ -461,7 +461,7 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
             Speech Recognition(Google Speech-to-Text)
         </td>
         <td width="320">
-            <img src="https://github.com/user-attachments/assets/6140903a-a048-47fe-8198-357f2807a4b7" loading="lazy" width="300px">
+            <img src="https://github.com/user-attachments/assets/d8aa01fe-b09c-449f-b30e-82e140c67d90" loading="lazy" width="300px">
         </td>
         <td width="760">
             チャンクデータを受け取り、Google Speech-to-Textを用いて文字書き起こしを行うノード<br>
