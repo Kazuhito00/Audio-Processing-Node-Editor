@@ -26,6 +26,7 @@ class Node(DpgNodeABC):
 
         self._audio_queue: Dict[int, queue.Queue] = {}
         self._stt_running_flag: Dict[int, bool] = {}
+        self._node_languages: Dict[int, str] = {}
 
     def add_node(
         self,
@@ -60,6 +61,9 @@ class Node(DpgNodeABC):
             "google_application_credentials_json"
         ]
 
+        # 言語設定を保持
+        self._language_codes = {"日本語": "ja-JP", "English": "en-US"}
+
         # 指定なしの場合はノード追加無し
         if not self._google_application_credentials_json or not os.path.isfile(
             self._google_application_credentials_json
@@ -73,28 +77,24 @@ class Node(DpgNodeABC):
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = (
             self._google_application_credentials_json
         )
-        from google.cloud import speech
 
-        # モデル情報：https://cloud.google.com/speech-to-text/docs/transcription-model?utm_source=chatgpt.com&hl=ja
-        stt_config = speech.RecognitionConfig(
-            encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-            sample_rate_hertz=self._default_sampling_rate,
-            language_code="ja-JP",
-            use_enhanced=True,
-            model="default",
-            # use_enhanced=True,
-            # model="telephony",
-        )
+        # 言語選択用のタグ名を生成
+        language_combo_tag = f"{node_id}:{self.node_tag}:language_combo"
 
-        self._streaming_config = speech.StreamingRecognitionConfig(
-            config=stt_config,
-            interim_results=True,  # 中間結果は不要ならFalse
+        # ノードごとの言語設定を保持（保存された設定があればそれを使用）
+        saved_language = (
+            setting_dict.get("selected_language", "日本語")
+            if setting_dict
+            else "日本語"
         )
+        self._node_languages[node_id] = saved_language
 
         self._stt_running_flag[node_id] = True
 
         # 音声認識準備
         def generator(node_id: int):
+            from google.cloud import speech
+
             timeout_time = self._chunk_size / self._default_sampling_rate * 2
             silent_chunk = np.zeros(self._chunk_size, dtype=np.int16).tobytes()
 
@@ -113,6 +113,8 @@ class Node(DpgNodeABC):
                 yield speech.StreamingRecognizeRequest(audio_content=chunk_bytes)
 
         def run_stt(node_id: int):
+            from google.cloud import speech
+
             # タグ名
             tag_name_list: List[Any] = get_tag_name_list(
                 node_id,
@@ -122,9 +124,27 @@ class Node(DpgNodeABC):
             )
             output_tag_list = tag_name_list[2]
 
+            # 現在選択されている言語を取得
+            selected_language = self._node_languages.get(node_id, "日本語")
+            language_code = self._language_codes.get(selected_language, "ja-JP")
+
+            # 言語に応じたSTT設定を作成
+            stt_config = speech.RecognitionConfig(
+                encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+                sample_rate_hertz=self._default_sampling_rate,
+                language_code=language_code,
+                use_enhanced=True,
+                model="default",
+            )
+
+            streaming_config = speech.StreamingRecognitionConfig(
+                config=stt_config,
+                interim_results=True,
+            )
+
             speech_client = self._node_data[str(node_id)]["speech_client"]
             responses = speech_client.streaming_recognize(
-                self._streaming_config, generator(node_id)
+                streaming_config, generator(node_id)
             )
 
             start_time = datetime.datetime.now()
@@ -138,7 +158,9 @@ class Node(DpgNodeABC):
 
                     for result in response.results:
                         transcript = result.alternatives[0].transcript
-                        wrapped_text = "\n".join(textwrap.wrap(transcript, 20))
+                        # 言語に応じて折り返し文字数を変更
+                        wrap_width = 20 if selected_language == "日本語" else 40
+                        wrapped_text = "\n".join(textwrap.wrap(transcript, wrap_width))
                         dpg_set_value(output_tag_list[0][1], wrapped_text)
                 except Exception as e:
                     print(f"[STT Error] during response loop: {e}")
@@ -196,6 +218,20 @@ class Node(DpgNodeABC):
                         readonly=False,
                         default_value="",
                     )
+
+            # 言語選択ドロップダウン
+            with dpg.node_attribute(
+                tag=f"{node_id}:{self.node_tag}:language_attr",
+                attribute_type=dpg.mvNode_Attr_Static,
+            ):
+                dpg.add_combo(
+                    tag=language_combo_tag,
+                    items=list(self._language_codes.keys()),
+                    default_value=saved_language,
+                    width=small_window_w,
+                    callback=lambda s, a, u: self._on_language_change(u[0], a),
+                    user_data=(node_id,),
+                )
             # 処理時間
             if self._use_pref_counter:
                 with dpg.node_attribute(
@@ -283,6 +319,10 @@ class Node(DpgNodeABC):
         if str(node_id) in self._audio_queue:
             self._audio_queue[str(node_id)].put(None)  # ジェネレーター終了
 
+    def _on_language_change(self, node_id, selected_language):
+        """言語が変更されたときの処理"""
+        self._node_languages[node_id] = selected_language
+
     def get_setting_dict(self, node_id):
         # タグ名
         tag_name_list: List[Any] = get_tag_name_list(
@@ -295,11 +335,23 @@ class Node(DpgNodeABC):
 
         pos: List[int] = dpg.get_item_pos(tag_node_name)
 
+        # 現在選択されている言語を取得
+        language_combo_tag = f"{node_id}:{self.node_tag}:language_combo"
+        selected_language = dpg.get_value(language_combo_tag)
+
         setting_dict: Dict[str, Any] = {
             "ver": self._ver,
             "pos": pos,
+            "selected_language": selected_language,
         }
         return setting_dict
 
     def set_setting_dict(self, node_id, setting_dict):
-        pass
+        # 保存された言語設定を復元
+        selected_language = setting_dict.get("selected_language", "日本語")
+        self._node_languages[node_id] = selected_language
+
+        # UIのドロップダウンも更新
+        language_combo_tag = f"{node_id}:{self.node_tag}:language_combo"
+        if dpg.does_item_exist(language_combo_tag):
+            dpg.set_value(language_combo_tag, selected_language)
