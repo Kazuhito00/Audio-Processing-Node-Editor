@@ -20,6 +20,7 @@ librosa              0.11.0    or later
 sounddevice          0.5.1     or later
 soundfile            0.13.1    or later
 webrtcvad-wheels     2.0.14    or later
+vosk                 0.3.45    or later ※Speech Recognition(Vosk)ノードを実行する場合
 google-cloud-speech  2.32.0    or later ※Speech Recognition(Google Speech-to-Text)ノードを実行する場合
 ```
 
@@ -467,6 +468,18 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
             チャンクデータを受け取り、Google Speech-to-Textを用いて文字書き起こしを行うノード<br>
             現在は「日本語」と「English」のみ対応。<br>
             このノードを使用する際は、「node_editor/setting/setting.json」の「google_application_credentials_json」にサービスアカウントキーを設定してください<br>
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            Speech Recognition(Vosk)
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/e4deca35-57f7-47bf-95ab-30c64e9c2719" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            チャンクデータを受け取り、Voskを用いて文字書き起こしを行うノード<br>
+            現在は「日本語」と「English」のみ対応。
         </td>
     </tr>
 </table>
