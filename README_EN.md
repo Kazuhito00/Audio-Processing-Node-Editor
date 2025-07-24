@@ -460,11 +460,11 @@ Read the node settings(json file) output by Export<br>
         <td width="200">
             Speech Recognition(Google Speech-to-Text)
         </td>
-        <td width="320">
-            <img src="https://github.com/user-attachments/assets/6140903a-a048-47fe-8198-357f2807a4b7" loading="lazy" width="300px">
+            <img src="https://github.com/user-attachments/assets/d8aa01fe-b09c-449f-b30e-82e140c67d90" loading="lazy" width="300px">
         </td>
         <td width="760">
             A node that receives chunk data and transcribes it using Google Speech-to-Text.<br>
+            Currently, only "Japanese" and "English" are supported.<br>
             When using this node, please set the service account key in "google_application_credentials_json" in "node_editor/setting/setting.json"<br>
         </td>
     </tr>
