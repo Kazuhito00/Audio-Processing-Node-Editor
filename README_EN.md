@@ -535,6 +535,40 @@ To use them with Audio-Processing-Node-Editor, please follow the installation in
             After clicking "1. Prepare Microphone", allow use of the microphone and click "Start Recording".
         </td>
     </tr>
+    <tr>
+        <td width="200">
+            <a href=https://github.com/Kazuhito00/APNE-Input-ReSpeaker-v2-Node>ReSpeaker v2 Mic</a> 
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/0177158c-6f66-4a42-9897-1115ef1ef96b" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            Node that handles microphone input for ReSpeaker v2<br>
+            Select the microphone input you want to use from the drop-down list.
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            <a href=https://github.com/Kazuhito00/APNE-Input-ReSpeaker-v2-Node>ReSpeaker v2 DOA</a> 
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/1dffc29f-c1b8-4dbd-8863-05644f77f3af" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            Node that handles the DOA function of ReSpeaker v2
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            <a href=https://github.com/Kazuhito00/APNE-Input-ReSpeaker-v2-Node>ReSpeaker v2 Mic</a> 
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/7c88dc94-78e7-4ade-b29f-d7c8f8cab9b1" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            Node that handles the VAD function of ReSpeaker v2
+        </td>
+    </tr>
 </table>
 
 </details>
