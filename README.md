@@ -535,6 +535,40 @@ Audio-Processing-Node-Editor で使用するには、各リポジトリのイン
           　「1. Prepare Microphone」を押下後、マイク使用を許可し、「Start Recording」を押下してください。
         </td>
     </tr>
+    <tr>
+        <td width="200">
+            <a href=https://github.com/Kazuhito00/APNE-Input-ReSpeaker-v2-Node>ReSpeaker v2 Mic</a> 
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/0177158c-6f66-4a42-9897-1115ef1ef96b" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            ReSpeaker v2のマイク入力を扱うノード<br>
+            ドロップダウンリストから、使用したいマイク入力を選択してください。
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            <a href=https://github.com/Kazuhito00/APNE-Input-ReSpeaker-v2-Node>ReSpeaker v2 DOA</a> 
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/1dffc29f-c1b8-4dbd-8863-05644f77f3af" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            ReSpeaker v2のDOA機能を扱うノード
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
+            <a href=https://github.com/Kazuhito00/APNE-Input-ReSpeaker-v2-Node>ReSpeaker v2 Mic</a> 
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/7c88dc94-78e7-4ade-b29f-d7c8f8cab9b1" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            ReSpeaker v2のVAD機能を扱うノード
+        </td>
+    </tr>
 </table>
 
 </details>
