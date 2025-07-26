@@ -524,7 +524,7 @@ To use them with Audio-Processing-Node-Editor, please follow the installation in
 <table>
     <tr>
         <td width="200">
-            <a href=https://github.com/Kazuhito00/APNE-getUserMedia-Input-Node>Mic(getUserMedia())</a> 
+            <a href=https://github.com/Kazuhito00/APNE-Input-getUserMedia-Mic-Node>Mic(getUserMedia())</a> 
         </td>
         <td width="320">
             <img src="https://github.com/user-attachments/assets/a5231445-5c0c-4f43-92dd-c1e1d913c108" loading="lazy" width="300px">
