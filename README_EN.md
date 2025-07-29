@@ -161,6 +161,17 @@ Read the node settings(json file) output by Export<br>
             A node that outputs a float value.<br>
         </td>
     </tr>
+    <tr>
+        <td width="200">
+            Zero
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/6a846f1f-3dbb-445d-a1dc-5daeb8a0c085" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            A node that outputs a waveform with a value of 0<br>
+        </td>
+    </tr>
 </table>
 </details>
 
