@@ -161,6 +161,17 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
             フロート値を出力するノード<br>
         </td>
     </tr>
+    <tr>
+        <td width="200">
+            Zero
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/6a846f1f-3dbb-445d-a1dc-5daeb8a0c085" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            値が0の波形を出力するノード<br>
+        </td>
+    </tr>
 </table>
 </details>
 
