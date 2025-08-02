@@ -24,10 +24,15 @@ class Node(DpgNodeABC):
     def __init__(self) -> None:
         self._node_data = {}
         self._setting_dict: Dict[str, Any] = {}
-        self._start_time: Optional[float] = None
-        self._paused_elapsed: float = 0.0
+        self._start_time: Dict[str, Optional[float]] = {}
+        self._paused_elapsed: Dict[str, float] = {}
         self._default_sampling_rate: int = 16000
-        self._alpha_cache = None
+        self._alpha_cache: Dict[str, Any] = {}
+        self._frame_cache: Dict[str, Dict[int, Any]] = {}
+        self._resize_cache: Dict[str, Dict[str, Any]] = {}
+        self._last_frame_time: Dict[str, int] = {}
+        self._last_frame_data: Dict[str, Any] = {}
+        self._last_frame_update_time: Dict[str, float] = {}
 
     def close(self, node_id: str) -> None:
         clip = self._node_data[str(node_id)].get("clip")
@@ -35,6 +40,23 @@ class Node(DpgNodeABC):
             clip.close()
         if str(node_id) in self._node_data:
             del self._node_data[str(node_id)]
+        # ノード固有のキャッシュをクリア
+        if str(node_id) in self._frame_cache:
+            del self._frame_cache[str(node_id)]
+        if str(node_id) in self._resize_cache:
+            del self._resize_cache[str(node_id)]
+        if str(node_id) in self._last_frame_time:
+            del self._last_frame_time[str(node_id)]
+        if str(node_id) in self._last_frame_data:
+            del self._last_frame_data[str(node_id)]
+        if str(node_id) in self._alpha_cache:
+            del self._alpha_cache[str(node_id)]
+        if str(node_id) in self._start_time:
+            del self._start_time[str(node_id)]
+        if str(node_id) in self._paused_elapsed:
+            del self._paused_elapsed[str(node_id)]
+        if str(node_id) in self._last_frame_update_time:
+            del self._last_frame_update_time[str(node_id)]
 
     def get_setting_dict(self, node_id: str) -> Dict[str, Any]:
         tag_name_list = get_tag_name_list(
@@ -128,6 +150,15 @@ class Node(DpgNodeABC):
             "chunk": np.array([]),
             "audio_buffer": np.array([]),  # 初期化時に空の配列を設定
         }
+        # ノード固有のキャッシュを初期化
+        self._frame_cache[str(node_id)] = {}
+        self._resize_cache[str(node_id)] = {}
+        self._last_frame_time[str(node_id)] = -1
+        self._last_frame_data[str(node_id)] = None
+        self._alpha_cache[str(node_id)] = None
+        self._start_time[str(node_id)] = None
+        self._paused_elapsed[str(node_id)] = 0.0
+        self._last_frame_update_time[str(node_id)] = 0.0
 
         # 設定
         self._setting_dict = setting_dict or {}
@@ -263,6 +294,7 @@ class Node(DpgNodeABC):
         output_tag_list = tag_name_list[2]
 
         # 計測開始
+        start_time = None
         if self._use_pref_counter:
             start_time = time.perf_counter()
 
@@ -272,11 +304,11 @@ class Node(DpgNodeABC):
 
         elapsed = 0.0  # elapsedを初期化
         if current_status == "play":
-            if self._start_time is None:
-                self._start_time = time.time() - self._paused_elapsed
-            elapsed = time.time() - self._start_time
+            if self._start_time.get(str(node_id)) is None:
+                self._start_time[str(node_id)] = time.time() - self._paused_elapsed.get(str(node_id), 0.0)
+            elapsed = time.time() - self._start_time[str(node_id)]
         elif current_status == "pause":
-            elapsed = self._paused_elapsed  # ポーズ時の経過時間を使用
+            elapsed = self._paused_elapsed.get(str(node_id), 0.0)  # ポーズ時の経過時間を使用
 
         # 再生に合わせてスクロールし、チャンク取り出しを行う
         if current_status == "play":
@@ -285,63 +317,67 @@ class Node(DpgNodeABC):
             texture_tag = f"{node_id}:video_texture"
 
             if clip:
-                # 描画負荷軽減のため、一定間隔でフレームを更新
-                frame_update_interval = (
-                    1.0 / clip.fps
-                )  # 動画のFPSに基づいて更新間隔を設定
-                if not hasattr(self, "_last_frame_update_time"):
-                    self._last_frame_update_time = 0.0
-
-                if (
-                    time.time() - self._last_frame_update_time
-                ) >= frame_update_interval:
-                    self._last_frame_update_time = time.time()
-
+                # フレーム更新
+                frame_time = int(elapsed * clip.fps)
+                
+                # 同じフレームの場合はスキップ
+                if frame_time != self._last_frame_time.get(str(node_id), -1):
+                    self._last_frame_time[str(node_id)] = frame_time
+                    
                     try:
                         video_width = self._node_data[str(node_id)].get("video_width")
                         video_height = self._node_data[str(node_id)].get("video_height")
-                        aspect_ratio = video_width / video_height
-
-                        display_width = self._setting_dict.get(
-                            "waveform_width", 200
-                        )  # 波形の幅に合わせる
-                        display_height = int(
-                            display_width / aspect_ratio
-                        )  # アスペクト比を維持して高さを調整
-
-                        # 現在の経過時間に基づいてフレームを取得
-                        frame = clip.get_frame(elapsed)
-                        frame = cv2.resize(frame, dsize=(display_width, display_height))
-
-                        # RGBをfloat32に正規化（in-place演算）
-                        frame_rgb = frame.astype(np.float32)
-                        np.multiply(frame_rgb, 1 / 255.0, out=frame_rgb)
-
-                        # アルファチャンネル（キャッシュして使い回し）
-                        if (
-                            self._alpha_cache is None
-                            or self._alpha_cache.shape[:2] != frame.shape[:2]
-                        ):
-                            self._alpha_cache = np.ones(
-                                (*frame.shape[:2], 1), dtype=np.float32
-                            )
-                        alpha_channel = self._alpha_cache
-
-                        # RGBA結合 → flatten
-                        h, w = frame.shape[:2]
-                        rgba = np.empty((h, w, 4), dtype=np.float32)
-                        rgba[..., :3] = frame_rgb
-                        rgba[..., 3:] = (
-                            alpha_channel  # alpha_channel.shape == (h, w, 1)
-                        )
-                        texture_data = rgba.ravel()
-
+                        display_width = self._setting_dict.get("waveform_width", 200)
+                        display_height = int(display_width * video_height / video_width)
+                        resize_key = f"{display_width}x{display_height}"
+                        
+                        # フレームキャッシュを確認
+                        node_frame_cache = self._frame_cache[str(node_id)]
+                        if frame_time not in node_frame_cache:
+                            # キャッシュサイズ制限（10フレームまで）
+                            if len(node_frame_cache) > 10:
+                                oldest_key = min(node_frame_cache.keys())
+                                del node_frame_cache[oldest_key]
+                            
+                            frame = clip.get_frame(elapsed)
+                            node_frame_cache[frame_time] = frame
+                        else:
+                            frame = node_frame_cache[frame_time]
+                        
+                        # リサイズキャッシュを確認
+                        node_resize_cache = self._resize_cache[str(node_id)]
+                        cache_key = f"{frame_time}_{resize_key}"
+                        if cache_key not in node_resize_cache:
+                            # キャッシュサイズ制限
+                            if len(node_resize_cache) > 20:
+                                node_resize_cache.clear()
+                            
+                            resized_frame = cv2.resize(frame, (display_width, display_height))
+                            # 正規化とアルファチャンネル追加
+                            h, w = resized_frame.shape[:2]
+                            texture_data = np.empty(h * w * 4, dtype=np.float32)
+                            # RGBデータを直接正規化しながら配置
+                            texture_data[0::4] = resized_frame[:, :, 0].ravel() / 255.0  # R
+                            texture_data[1::4] = resized_frame[:, :, 1].ravel() / 255.0  # G
+                            texture_data[2::4] = resized_frame[:, :, 2].ravel() / 255.0  # B
+                            texture_data[3::4] = 1.0  # Alpha
+                            
+                            node_resize_cache[cache_key] = texture_data
+                        else:
+                            texture_data = node_resize_cache[cache_key]
+                        
                         dpg.set_value(texture_tag, texture_data)
-                        dpg.configure_item(
-                            f"{node_id}:video_preview",
-                            width=display_width,
-                            height=display_height,
-                        )
+                        
+                        # サイズが変わった場合のみ更新
+                        last_data = self._last_frame_data.get(str(node_id))
+                        if last_data is None or len(last_data) != len(texture_data):
+                            dpg.configure_item(
+                                f"{node_id}:video_preview",
+                                width=display_width,
+                                height=display_height,
+                            )
+                            self._last_frame_data[str(node_id)] = texture_data
+                            
                     except Exception as e:
                         print(f"[WARNING] Could not get video frame at {elapsed}s: {e}")
                         player_status_dict["current_status"] = "stop"
@@ -406,16 +442,20 @@ class Node(DpgNodeABC):
             if plot_start_time < 0:
                 leading_zeros_samples = int(abs(plot_start_time) * sr)
 
-            # 必要に応じてy_displayに先行ゼロをパディング
-            y_display = np.pad(y_display_raw, (leading_zeros_samples, 0), "constant")
-
-            # 合計の長さが期待より短い場合、末尾ゼロをパディング
-            if len(y_display) < expected_display_samples:
-                y_display = np.pad(
-                    y_display,
-                    (0, expected_display_samples - len(y_display)),
-                    "constant",
-                )
+            # パディング処理
+            total_needed = expected_display_samples
+            current_len = len(y_display_raw)
+            
+            if leading_zeros_samples > 0 or current_len < total_needed:
+                # 全体のバッファを一度に確保
+                y_display = np.zeros(expected_display_samples, dtype=np.float32)
+                # データをコピー
+                if current_len > 0:
+                    start_idx = leading_zeros_samples
+                    end_idx = min(start_idx + current_len, expected_display_samples)
+                    y_display[start_idx:end_idx] = y_display_raw[:end_idx-start_idx]
+            else:
+                y_display = y_display_raw
 
             # 期待より長い場合はトリム（正しいパディングロジックであれば発生しないはず）
             y_display = y_display[:expected_display_samples]
@@ -425,21 +465,23 @@ class Node(DpgNodeABC):
             x_display = np.arange(len(y_display)) / sr + plot_start_time
 
             if len(y_display) > 0:
+                # メモリビューを使用
                 dpg.set_value(
                     f"{node_id}:audio_line_series",
-                    [x_display.tolist(), y_display.tolist()],
+                    [memoryview(x_display), memoryview(y_display)],
                 )
             else:
                 dpg.set_value(f"{node_id}:audio_line_series", [[], []])
             dpg.set_axis_limits(f"{node_id}:xaxis", plot_start_time, plot_end_time)
 
         elif current_status == "pause":
-            if self._start_time is not None:
-                self._paused_elapsed = time.time() - self._start_time
-                self._start_time = None
+            node_start_time = self._start_time.get(str(node_id))
+            if node_start_time is not None:
+                self._paused_elapsed[str(node_id)] = time.time() - node_start_time
+                self._start_time[str(node_id)] = None
         elif current_status == "stop":
-            self._start_time = None
-            self._paused_elapsed = 0.0
+            self._start_time[str(node_id)] = None
+            self._paused_elapsed[str(node_id)] = 0.0
 
         # 計測終了
         if self._use_pref_counter:
@@ -500,18 +542,20 @@ class Node(DpgNodeABC):
             temp_audio_file.close()
 
             try:
-                # ffmpegコマンドの構築
+                # ffmpegコマンドの構築（高速化オプション付き）
                 command = [
                     "ffmpeg",
                     "-i",
                     video_path,
                     "-vn",  # ビデオなし
                     "-acodec",
-                    "pcm_f32le",  # 32-bit float PCM
+                    "pcm_s16le",  # 16-bit PCM (より高速)
                     "-ar",
                     str(self._default_sampling_rate),  # サンプリングレート
                     "-ac",
                     "1",  # モノラル
+                    "-threads",
+                    "0",  # 自動的にスレッド数を決定
                     "-y",  # 既存ファイルを上書き
                     temp_audio_file.name,
                 ]
@@ -524,7 +568,7 @@ class Node(DpgNodeABC):
                     stderr=subprocess.PIPE,
                 )
 
-                # soundfileでオーディオを読み込む
+                # soundfileでオーディオを読み込む（float32変換は自動）
                 audio_array, original_sr = sf.read(
                     temp_audio_file.name, dtype="float32"
                 )
@@ -593,12 +637,13 @@ class Node(DpgNodeABC):
         # 動画の初期フレームをテクスチャとして設定
         first_frame = clip.get_frame(0)  # 最初のフレームを取得
         first_frame = cv2.resize(first_frame, dsize=(display_width, display_height))
-        # MoviePyのフレームはRGB、DearPyGuiはRGBAを期待するため変換
-        frame_rgb = first_frame.astype(np.float32) / 255.0
-        # アルファチャンネルを追加 (不透明の場合は1.0)
-        alpha_channel = np.ones((*frame_rgb.shape[:2], 1), dtype=np.float32)
-        texture_data = np.concatenate((frame_rgb, alpha_channel), axis=-1)
-        texture_data = texture_data.flatten()
+        # 直接RGBA形式で構築
+        h, w = first_frame.shape[:2]
+        texture_data = np.empty(h * w * 4, dtype=np.float32)
+        texture_data[0::4] = first_frame[:, :, 0].ravel() / 255.0  # R
+        texture_data[1::4] = first_frame[:, :, 1].ravel() / 255.0  # G
+        texture_data[2::4] = first_frame[:, :, 2].ravel() / 255.0  # B
+        texture_data[3::4] = 1.0  # Alpha
 
         texture_tag = f"{node_id}:video_texture"
         placeholder_texture_tag = f"{node_id}:video_texture_placeholder"
