@@ -172,6 +172,19 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
             値が0の波形を出力するノード<br>
         </td>
     </tr>
+    <tr>
+        <td width="200">
+            Loopback (Windows)
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/4cc0b754-a236-4988-98d7-dd1c1591326c" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            PC上で流れている音をループバック入力し、チャンク出力するノード<br>
+            ※Windowsのみで動作<br>
+            ※OSバージョンや設定、環境によって動作しない可能性あり
+        </td>
+    </tr>
 </table>
 </details>
 
