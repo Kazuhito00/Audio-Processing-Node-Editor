@@ -16,12 +16,17 @@ from node.node_abc import DpgNodeABC
 class Node(DpgNodeABC):
     _ver: str = "0.0.1"
 
-    node_label: str = "Loopback (Win/Linux)"
+    node_label: str = "Loopback (Windows)"
     node_tag: str = "Loopback"
 
     def __init__(self) -> None:
         self._node_data = {}
         self._system = platform.system()
+        
+        # Windowsでない場合は警告
+        if self._system != "Windows":
+            print("[WARNING] Loopback node is designed for Windows only.")
+            
         self._loopback_device_id: Optional[int] = None
         self._candidate_devices: List[int] = []
         self._current_device_index: int = 0
@@ -35,43 +40,48 @@ class Node(DpgNodeABC):
 
     def _find_loopback_device(self) -> None:
         """
-        OSに応じたループバック入力デバイスを検索し、候補リストを作成する。
+        Windowsのループバック入力デバイスを検索し、候補リストを作成する。
         """
         self._candidate_devices = []
+        
+        # Windows以外では処理をスキップ
+        if self._system != "Windows":
+            print("[WARNING] Loopback device search is only supported on Windows.")
+            return
+            
         try:
             devices = sd.query_devices()
         except Exception as e:
             print(f"[ERROR] Failed to query audio devices: {e}")
             return
 
-        priority_levels = {1: [], 2: [], 3: [], 4: []}
-        if self._system == "Windows":
-            for device_id, device in enumerate(devices):
-                if device.get("max_input_channels", 0) > 0:
-                    device_name = device.get("name", "").lower()
-                    if any(k in device_name for k in ["stereo mix", "ステレオ ミキサー", "what u hear"]):
-                        priority_levels[1].append(device_id)
-                    elif "pc スピーカー" in device_name or "pc speaker" in device_name:
-                        priority_levels[2].append(device_id)
-                    elif "steam streaming speakers" in device_name and "input" in device_name:
-                        priority_levels[3].append(device_id)
-        elif self._system == "Linux":
-            for device_id, device in enumerate(devices):
-                if device.get("max_input_channels", 0) > 0 and ".monitor" in device.get("name", "").lower():
-                    priority_levels[4].append(device_id)
+        # Windows専用のループバックデバイス検索
+        priority_levels = {1: [], 2: [], 3: []}
+        for device_id, device in enumerate(devices):
+            if device.get("max_input_channels", 0) > 0:
+                device_name = device.get("name", "").lower()
+                # 最高優先度: ステレオミキサー系
+                if any(k in device_name for k in ["stereo mix", "ステレオ ミキサー", "what u hear"]):
+                    priority_levels[1].append(device_id)
+                # 中優先度: PCスピーカー系
+                elif "pc スピーカー" in device_name or "pc speaker" in device_name:
+                    priority_levels[2].append(device_id)
+                # 低優先度: Steam系
+                elif "steam streaming speakers" in device_name and "input" in device_name:
+                    priority_levels[3].append(device_id)
 
         for level in sorted(priority_levels.keys()):
             self._candidate_devices.extend(priority_levels[level])
         self._candidate_devices = list(dict.fromkeys(self._candidate_devices))
 
-        print("[INFO] Found candidate loopback devices:")
+        print("[INFO] Found Windows loopback devices:")
         if self._candidate_devices:
             for i, dev_id in enumerate(self._candidate_devices):
                 print(f"  - Candidate {i}: ID {dev_id}, Name: {sd.query_devices(dev_id)['name']}")
             self._loopback_device_id = self._candidate_devices[0]
             print(f"[INFO] Selected initial device: ID {self._loopback_device_id}")
         else:
-            print("[WARNING] No loopback device found.")
+            print("[WARNING] No Windows loopback device found. Please enable 'Stereo Mix' in Windows sound settings.")
 
     def add_node(self, parent: str, node_id: int, pos: List[int] = [0, 0], setting_dict: Optional[Dict[str, Any]] = None, callback: Optional[Any] = None) -> str:
         tag_name_list = get_tag_name_list(node_id, self.node_tag, [], [self.TYPE_SIGNAL_CHUNK, self.TYPE_TIME_MS])
@@ -184,7 +194,12 @@ class Node(DpgNodeABC):
         return {"chunk_index": node_data["chunk_index"], "chunk": node_data["chunk"]}
 
     def _start_loopback(self, node_id: str) -> bool:
-        if self._loopback_device_id is None: return False
+        if self._system != "Windows":
+            print("[ERROR] Loopback is only supported on Windows.")
+            return False
+        if self._loopback_device_id is None: 
+            print("[ERROR] No Windows loopback device available.")
+            return False
 
         def callback_loopback(indata, frames, time_info, status):
             if status:
