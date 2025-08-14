@@ -172,6 +172,19 @@ Read the node settings(json file) output by Export<br>
             A node that outputs a waveform with a value of 0.<br>
         </td>
     </tr>
+    <tr>
+        <td width="200">
+            Loopback (Windows)
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/4cc0b754-a236-4988-98d7-dd1c1591326c" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            This node loops back the sound being played on your PC and outputs chunks.<br>
+            *Windows only.<br>
+            *May not work depending on your OS version, settings, or environment.
+        </td>
+    </tr>
 </table>
 </details>
 
