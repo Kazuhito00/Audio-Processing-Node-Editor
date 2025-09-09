@@ -366,6 +366,17 @@ Read the node settings(json file) output by Export<br>
     </tr>
     <tr>
         <td width="200">
+            Magunitude Squared Coherence
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/a50f42b1-907e-47c4-bad3-dc37b45fdb5b" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            A node that receives two chunks of data, calculates MSC (Magunitude Squared Coherence), and calculates the similarity for each frequency.<br>
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
             Simple EQ(Butterworth IIR)
         </td>
         <td width="320">
