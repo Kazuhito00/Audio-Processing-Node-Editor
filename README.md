@@ -366,6 +366,17 @@ Exportで出力したノード設定(jsonファイル)を読み込む<br>
     </tr>
     <tr>
         <td width="200">
+            Magunitude Squared Coherence
+        </td>
+        <td width="320">
+            <img src="https://github.com/user-attachments/assets/a50f42b1-907e-47c4-bad3-dc37b45fdb5b" loading="lazy" width="300px">
+        </td>
+        <td width="760">
+            2つのチャンクデータを受け取り、MSC(Magunitude Squared Coherence)を計算し、周波数毎の類似度を計算するノード<br>
+        </td>
+    </tr>
+    <tr>
+        <td width="200">
             Simple EQ(Butterworth IIR)
         </td>
         <td width="320">
