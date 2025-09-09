@@ -242,7 +242,7 @@ class Node(DpgNodeABC):
 
         # モデル読み込み
         model = SileroVadOnnxWrapper(
-            "node/time_domain_node/model/silero_vad.onnx", force_onnx_cpu=True
+            "node/time_domain_node/model/silero_vad_v6.onnx", force_onnx_cpu=True
         )
         self._node_data[str(node_id)] = {
             "buffer": np.zeros(0, dtype=np.float32),
