@@ -33,7 +33,7 @@ Video Fileノードを使用する場合は、[FFmpeg](https://ffmpeg.org/) を�
     1. パッケージをインストール <br>`pip install -r requirements.txt`  
     1. 「main.py」を実行<br>`python main.py`
 * 実行ファイルを利用(Windowsのみ)
-    1. [apn-editor_win_x86_64.zip](https://github.com/Kazuhito00/Audio-Processing-Node-Editor/releases/download/v0.3.1/apn-editor_v0.3.1_win_x86_64.zip)をダウンロード
+    1. [apn-editor_win_x86_64.zip](https://github.com/Kazuhito00/Audio-Processing-Node-Editor/releases/download/v0.4.0/apn-editor_v0.4.0_win_x86_64.zip)をダウンロード
     1. 「main.exe」を実行 
 
 # Usage

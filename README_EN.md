@@ -33,7 +33,7 @@ Please prepare the environment by one of the following methods.<br>
     1. Install package <br>`pip install -r requirements.txt`  
     1. Run "main.py" <br>`python main.py`
 * Use executable file (Windows only)
-    1. Download [ipn-editor_win_x86_64.zip](https://github.com/Kazuhito00/Audio-Processing-Node-Editor/releases/download/v0.3.1/apn-editor_v0.3.1_win_x86_64.zip)
+    1. Download [ipn-editor_win_x86_64.zip](https://github.com/Kazuhito00/Audio-Processing-Node-Editor/releases/download/v0.4.0/apn-editor_v0.4.0_win_x86_64.zip)
     1. Run "main.exe"
 
 # Usage
