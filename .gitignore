@@ -197,3 +197,6 @@ node_maai_*.py
 node_input_respeaker_*.py
 node_aec_*
 dec-*.onnx
+.env
+.refresh_token
+node_stt_google_for_*.py
