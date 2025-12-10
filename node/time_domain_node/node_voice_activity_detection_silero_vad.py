@@ -8,11 +8,12 @@ from typing import Any, Dict, List, Optional
 import dearpygui.dearpygui as dpg  # type: ignore
 import numpy as np
 import onnxruntime  # type: ignore
-from node.node_abc import DpgNodeABC  # type: ignore
 from node_editor.util import (  # type: ignore
     dpg_set_value,
     get_tag_name_list,
 )
+
+from node.node_abc import DpgNodeABC  # type: ignore
 
 
 class SileroVadOnnxWrapper:
@@ -386,8 +387,11 @@ class Node(DpgNodeABC):
                 source_node = ":".join(connection_info[0].split(":")[:2])
                 destination_node = ":".join(connection_info[1].split(":")[:2])
                 if tag_node_name == destination_node:
-                    chunk_index = node_result_dict[source_node].get("chunk_index", -1)
-                    chunk = node_result_dict[source_node].get("chunk", np.array([]))
+                    if source_node in node_result_dict:
+                        chunk_index = node_result_dict[source_node].get(
+                            "chunk_index", -1
+                        )
+                        chunk = node_result_dict[source_node].get("chunk", np.array([]))
                     break
 
         # プロット
