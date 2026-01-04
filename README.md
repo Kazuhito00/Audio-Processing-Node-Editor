@@ -1,5 +1,10 @@
 [Japanese/[English](README_EN.md)]
 
+> [!IMPORTANT]
+> 本リポジトリは今後積極的にメンテナンスされません。  
+> 開発および主要機能は **Multimodal-Node-Editor** に統合・引き継がれています。  
+> https://github.com/Kazuhito00/Multimodal-Node-Editor
+
 # Audio-Processing-Node-Editor
 ノードエディターベースのオーディオ処理アプリです。<br>
 処理の検証や比較検討での用途を想定しています。<br>
