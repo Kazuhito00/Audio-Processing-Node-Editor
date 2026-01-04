@@ -1,5 +1,10 @@
 [[Japanese](https://github.com/Kazuhito00/Audio-Processing-Node-Editor)/English] 
 
+> [!IMPORTANT]
+> This repository is no longer actively maintained.  
+> Core development and major features have been consolidated into **Multimodal-Node-Editor**.  
+> https://github.com/Kazuhito00/Multimodal-Node-Editor
+
 # Audio-Processing-Node-Editor
 This is an audio processing app based on the node editor. <br>
 It is intended for use in testing and comparing processing. <br>
